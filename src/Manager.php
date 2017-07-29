@@ -25,139 +25,155 @@ namespace Plinker\Tasks {
         /**
          * 
          */
-        public function hi(array $params = array())
+        public function create(array $params = array())
         {
-            $this->model->store($this->model->create(['log', 'time' => time(), 'action' => 'hi', 'ip' => $this->getIPAddress()]));
-            
-            $peer = @$params[0];
-
-            if (!empty($peer['token'])) {
-                // find peer
-                $peer = $this->model->findOne('peer', 'token = ?', [
-                    $peer['token']
-                ]);
-                
-                if (empty($peer)) {
-                    return new \Exception('Unauthorized');
-                }
-                
-                return 'Hello im: '.$this->getIPAddress();
-            } else {
-                return new \Exception('Peer announce record empty.');
-            }
+            return 'Task created';
         }
-        
 
         /**
          * 
          */
-        public function announce(array $params = array())
+        public function status(array $params = array())
         {
-            if (empty($params[0])) {
-                return new \Exception('Peer callback url is required.');
-            }
-            
-            $this->model->store($this->model->create(['log', 'time' => time(), 'action' => 'announce', 'ip' => $this->getIPAddress()]));
-            
-            
-            $peer = $this->model->findOrCreate([
-                'peer',
-                'ip' => $this->getIPAddress(),
-                'peer' => $params[0]
-            ]);
-
-            $peer->token = hash('sha256', (
-                $_SERVER['REMOTE_ADDR'].$params[0].microtime(true)
-            ));
-            
-            $this->model->store($peer);
-            
-            return $peer;
+            return 'Task status';
         }
         
-        public function peers(array $params = array())
+        /**
+         * 
+         */
+        public function info(array $params = array())
         {
-            $this->model->store($this->model->create(['log', 'time' => time(), 'action' => 'peers', 'ip' => $this->getIPAddress()]));
-            
-            $peer = @$params[0];
-
-            if (!empty($peer['token'])) {
-                // find peer
-                $peer = $this->model->findOne('peer', 'token = ?', [
-                    $peer['token']
-                ]);
-                
-                if (empty($peer)) {
-                    return new \Exception('Unauthorized');
-                }
-                
-                return $this->model->findAll('peer');
-            } else {
-                return new \Exception('Peer announce record empty.');
-            }
+            return 'Task info';
         }
-        
-        public function broadcast(array $params = array())
-        {
-            $this->model->store($this->model->create(['log', 'time' => time(), 'action' => 'broadcast', 'ip' => $this->getIPAddress()]));
-            
-            $peer = @$params[0];
 
-            if (!empty($peer['token'])) {
+        /**
+         * 
+         */
+        public function stop(array $params = array())
+        {
+            return 'Task stop';
+        }
+
+        /**
+         * 
+         */
+        public function clear(array $params = array())
+        {
+            return 'Task clear';
+        }
+
+        
+
+        // /**
+        //  * 
+        //  */
+        // public function announce(array $params = array())
+        // {
+        //     if (empty($params[0])) {
+        //         return new \Exception('Peer callback url is required.');
+        //     }
+            
+        //     $this->model->store($this->model->create(['log', 'time' => time(), 'action' => 'announce', 'ip' => $this->getIPAddress()]));
+            
+            
+        //     $peer = $this->model->findOrCreate([
+        //         'peer',
+        //         'ip' => $this->getIPAddress(),
+        //         'peer' => $params[0]
+        //     ]);
+
+        //     $peer->token = hash('sha256', (
+        //         $_SERVER['REMOTE_ADDR'].$params[0].microtime(true)
+        //     ));
+            
+        //     $this->model->store($peer);
+            
+        //     return $peer;
+        // }
+        
+        // public function peers(array $params = array())
+        // {
+        //     $this->model->store($this->model->create(['log', 'time' => time(), 'action' => 'peers', 'ip' => $this->getIPAddress()]));
+            
+        //     $peer = @$params[0];
+
+        //     if (!empty($peer['token'])) {
+        //         // find peer
+        //         $peer = $this->model->findOne('peer', 'token = ?', [
+        //             $peer['token']
+        //         ]);
                 
-                // find peer
-                $peer = $this->model->findOne('peer', 'token = ?', [
-                    $peer['token']
-                ]);
+        //         if (empty($peer)) {
+        //             return new \Exception('Unauthorized');
+        //         }
                 
-                if (empty($peer)) {
-                    return new \Exception('Unauthorized');
-                }
+        //         return $this->model->findAll('peer');
+        //     } else {
+        //         return new \Exception('Peer announce record empty.');
+        //     }
+        // }
+        
+        // public function broadcast(array $params = array())
+        // {
+        //     $this->model->store($this->model->create(['log', 'time' => time(), 'action' => 'broadcast', 'ip' => $this->getIPAddress()]));
+            
+        //     $peer = @$params[0];
+
+        //     if (!empty($peer['token'])) {
                 
-                $peers =  $this->model->findAll('peer');
+        //         // find peer
+        //         $peer = $this->model->findOne('peer', 'token = ?', [
+        //             $peer['token']
+        //         ]);
                 
-                foreach ($peers as $id => $own_peer) {
-                    $peer_network = new \Plinker\Core\Client(
-                        $own_peer->peer,
-                        'Peer\Peer',
-                        hash('sha256', gmdate('h').$this->config['plinker']['public_key']),
-                        hash('sha256', gmdate('h').$this->config['plinker']['private_key']),
-                        $this->config,
-                        $this->config['plinker']['encrypted']
-                    );
+        //         if (empty($peer)) {
+        //             return new \Exception('Unauthorized');
+        //         }
+                
+        //         $peers =  $this->model->findAll('peer');
+                
+        //         foreach ($peers as $id => $own_peer) {
+        //             $peer_network = new \Plinker\Core\Client(
+        //                 $own_peer->peer,
+        //                 'Peer\Peer',
+        //                 hash('sha256', gmdate('h').$this->config['plinker']['public_key']),
+        //                 hash('sha256', gmdate('h').$this->config['plinker']['private_key']),
+        //                 $this->config,
+        //                 $this->config['plinker']['encrypted']
+        //             );
                     
-                    $result[$id] = $peer_network->announce($peer['peer']);
+        //             $result[$id] = $peer_network->announce($peer['peer']);
                     
-                    $result[$id]['response'] = $peer_network->{@$params[1]}($result[$id]);
-                }
+        //             $result[$id]['response'] = $peer_network->{@$params[1]}($result[$id]);
+        //         }
 
-            } else {
-                return new \Exception('Peer announce record empty.');
-            }
+        //     } else {
+        //         return new \Exception('Peer announce record empty.');
+        //     }
 
-            return $result;
-        }
+        //     return $result;
+        // }
 
-        public function disconnect(array $params = array())
-        {
-            $peer =  $this->model->findOrCreate([
-                'peer',
-                'ip' => $this->getIPAddress()
-            ]);
+        // public function disconnect(array $params = array())
+        // {
+        //     $peer =  $this->model->findOrCreate([
+        //         'peer',
+        //         'ip' => $this->getIPAddress()
+        //     ]);
             
-            $this->model->trash($peer);
+        //     $this->model->trash($peer);
             
-            return true;
-        }
+        //     return true;
+        // }
         
-        public function testClosure($params = array())
-        {
-            $test = function ($what) {
-                return $what.' - Thanks buddy...';
-            };
+        // public function testClosure($params = array())
+        // {
+        //     $test = function ($what) {
+        //         return $what.' - Thanks buddy...';
+        //     };
     
-            return new SerializableClosure($test);
-        }
+        //     return new SerializableClosure($test);
+        // }
 
     }
 
