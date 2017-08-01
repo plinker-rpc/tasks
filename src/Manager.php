@@ -22,32 +22,119 @@ namespace Plinker\Tasks {
          */
         public function create(array $params = array())
         {
-            if ($params[0] == 'task') {
-
-                // find or create new task source
-                $tasksource = $this->model->findOrCreate([
-                    'tasksource',
-                    'name' => $params[1][0]
-                ]);
-                        
-                // update - source
-                $tasksource->source = $params[1][1];
-                        
-                // update - created/updated date
-                if (empty($tasksource->created)) {
-                    $tasksource->created = date_create()->format('Y-m-d h:i:s'); 
-                } else {
-                    $tasksource->updated = date_create()->format('Y-m-d h:i:s'); 
-                }
-                        
-                // store
-                $this->model->store($tasksource);
-
-                //
-                return $this->model->export($tasksource)[0];
+            if (empty($params[0])) {
+                return 'Error: missing first argument.';
             }
             
-            return '$tasks->create(\''.$params[0].'\,...\') - Cant do that';
+            if (empty($params[1])) {
+                return 'Error: missing second argument.';
+            }
+
+            // find or create new task source
+            $tasksource = $this->model->findOrCreate([
+                'tasksource',
+                'name' => $params[0]
+            ]);
+                        
+            // update - source
+            $tasksource->source = $params[1];
+            $tasksource->checksum = md5($params[1]);
+
+            /*
+             types
+             SerializableClosure - type which is created by actual code
+             php-closure         - type which is created by user inputted code
+             bash
+            */
+            if (!empty($params[2])) {
+                $tasksource->type = strtolower($params[2]);
+            } else {
+                $tasksource->type = '';
+            }
+            
+            // description
+            if (!empty($params[3])) {
+                $tasksource->description = $params[3];
+            } else {
+                $tasksource->description = '';
+            }
+                        
+            // update - created/updated date
+            if (empty($tasksource->created)) {
+                $tasksource->updated = date_create()->format('Y-m-d h:i:s');
+                $tasksource->created = date_create()->format('Y-m-d h:i:s'); 
+            } else {
+                $tasksource->updated = date_create()->format('Y-m-d h:i:s'); 
+            }
+                        
+            // store
+            $this->model->store($tasksource);
+
+            //
+            return $this->model->export($tasksource)[0];
+        }
+
+        /**
+         * 
+         */
+        public function update(array $params = array())
+        {
+            if (empty($params[0])) {
+                return 'Error: missing first argument.';
+            }
+            
+            if (!is_numeric($params[0])) {
+                return 'Error: first argument must be the task id.';
+            }
+            
+            if (empty($params[1])) {
+                return 'Error: missing second argument.';
+            }
+
+            if (empty($params[2])) {
+                return 'Error: missing third argument.';
+            }
+
+            // find or create new task source
+            $tasksource = $this->model->load('tasksource', $params[0]);
+                        
+            // update - source
+            $tasksource->name = $params[1];
+            $tasksource->source = $params[2];
+            $tasksource->checksum = md5($params[2]);
+
+            /*
+             types
+             SerializableClosure - type which is created by actual code
+             php-closure         - type which is created by user inputted code
+             bash
+            */
+            if (!empty($params[3])) {
+                $tasksource->type = strtolower($params[3]);
+            } else {
+                $tasksource->type = '';
+            }
+            
+            // description
+            if (!empty($params[4])) {
+                $tasksource->description = $params[4];
+            } else {
+                $tasksource->description = '';
+            }
+                        
+            // update - created/updated date
+            if (empty($tasksource->created)) {
+                $tasksource->updated = date_create()->format('Y-m-d h:i:s');
+                $tasksource->created = date_create()->format('Y-m-d h:i:s'); 
+            } else {
+                $tasksource->updated = date_create()->format('Y-m-d h:i:s'); 
+            }
+                        
+            // store
+            $this->model->store($tasksource);
+
+            //
+            return $this->model->export($tasksource)[0];
         }
         
         /**
@@ -57,6 +144,87 @@ namespace Plinker\Tasks {
         {
             // get task 
             return $this->model->findOne('tasksource', 'name = ?', [$params[0]]);
+        }
+
+        /**
+         * 
+         */
+        public function getSource(array $params = array())
+        {
+            // get task 
+            return $this->model->findOne('tasksource', 'id = ?', [$params[0]]);
+        }
+        
+        /**
+         * 
+         */
+        public function removeSource(array $params = array())
+        {
+            // get task 
+            $row = $this->model->load('tasksource', $params[0]);
+            $this->model->trash($row);
+            
+            return true;
+        }
+
+        /**
+         * 
+         */
+        public function getTaskSources(array $params = array())
+        {
+            // get task 
+            return $this->model->findAll('tasksource');
+        }
+        
+        /**
+         * 
+         */
+        public function getTasksLog(array $params = array())
+        {
+            // get task 
+            if (!empty($params[0])) {
+                return $this->model->findAll('tasks', 'tasksource_id = ?', [$params[0]]);
+            } else {
+                return $this->model->findAll('tasks');
+            }
+        }
+
+        /**
+         * 
+         */
+        public function getTasks(array $params = array())
+        {
+            // get task 
+            if (!empty($params[0])) {
+                return $this->model->findOne('tasks', 'id = ?', [$params[0]]);
+            } else {
+                return $this->model->findAll('tasks');
+            }
+        }
+        
+        /**
+         * 
+         */
+        public function getTasksLogCount(array $params = array())
+        {
+            // get task 
+            if (!empty($params[0])) {
+                return $this->model->count('tasks', 'tasksource_id = ?', [$params[0]]);
+            } else {
+                return $this->model->count('tasks');
+            }
+        }
+        
+        /**
+         * 
+         */
+        public function removeTasksLog(array $params = array())
+        {
+            // get task 
+            $row = $this->model->load('tasks', $params[0]);
+            $this->model->trash($row);
+            
+            return true;
         }
 
         /**
@@ -70,11 +238,20 @@ namespace Plinker\Tasks {
                 'tasks',
                 'name'   => $params[0],
                 'params' => json_encode($params[1]),
+                'repeats' => !empty($params[2]),
                 'completed' => 0
             ]);
+            
+            $task->sleep = round((empty($params[2]) ? 1: $params[2]));
 
             // get task source id
             $task->tasksource = $this->model->findOne('tasksource', 'name = ?', [$params[0]]);
+            
+            if (empty($task->completed) && empty($task->result)) {
+                // store task
+                $this->model->store($task);
+                return [];
+            }
             
             // store task
             $this->model->store($task);
@@ -92,35 +269,39 @@ namespace Plinker\Tasks {
             // get task 
             $tasksource = $this->model->findOne('tasksource', 'name = ?', [$params[0]]);
             
-            $source = unserialize($tasksource->source);
+            if (empty($tasksource)) {
+                return ['error' => 'task not found'];
+            }
+            
+            if (empty($tasksource->source)) {
+                $this->model->trash($tasksource);
+                return ['error' => 'task has no source, task has been removed'];
+            }
             
             $return = null;
-            ob_start();
-            $return = $source($params[1]);
-            $return = ob_get_contents().$return;
-            ob_end_clean();
+            if ($tasksource->type == 'serializableclosure') {
+                $source = unserialize($tasksource->source);
+
+                ob_start();
+                $return = $source($params[1]);
+                return ob_get_clean().$return;
+                
+            } elseif ($tasksource->type == 'php-closure') {
+                ob_start();
+                eval('?>'.$tasksource->source);
+                $return = $function($params[1]);
+                return ob_get_clean().$return;
+                
+            } elseif ($tasksource->type == 'bash') {
+                file_put_contents('./'.$tasksource->name.'.sh');
+                ob_start();
+                echo shell_exec('/bin/bash ./'.$tasksource->name.'.sh');
+                return ob_get_clean();
+            }
             
-            return $return;
+            return 'Invalid task type';
         }
 
-        /**
-         * 
-         */
-        public function status(array $params = array())
-        {
-            return 'Task status';
-        }
-        
-        /**
-         * 
-         */
-        public function info(array $params = array())
-        {
-            return $this->model->findOne('tasks', 'id = ?', [
-                $params[0]
-            ]);
-        }
-        
         /**
          * 
          */
@@ -130,6 +311,139 @@ namespace Plinker\Tasks {
             
             return true;
         }
+
+        /**
+         * 
+         */
+        public function reset(array $params = array())
+        {
+            $this->model->nuke();
+
+            return true;
+        }
+        
+        /**
+         *
+         */
+        public function files(array $params = array())
+        {
+  
+            // // This function scans the files folder recursively, and builds a large array
+            // $scan = function ($dir, $initial) use ( &$scan ) {
+            //     $files = array();
+            //     // Is there actually such a folder/file
+            //     if (file_exists($dir)) {
+            //         $files[str_replace($initial, '/', $dir)][] = array(
+            //             "name" => '..',
+            //             "type" => "folder",
+            //         );
+                    
+            //         foreach(scandir($dir) as $f) {
+
+            //             if(!$f || $f[0] == '.') {
+            //                 continue;
+            //             }
+
+            //             if (is_dir($dir . '/' . $f)) {
+            //                 // The path is a folder
+            //                 $files[str_replace($initial, '/', $dir . '/' . $f)][] = array(
+            //                     "name" => $f,
+            //                     "type" => "folder",
+            //                     //"path" => $dir . '/' . $f,
+            //                     //"size" => filesize($dir . '/' . $f) // Gets the size of this file
+            //                 );
+            //                 $files[str_replace($initial, '/', $dir . '/' . $f)] = $scan($dir . '/' . $f, $initial);
+            //             }
+            //             else {
+            //                 // It is a file
+            //                 $files[str_replace($initial, '/', $dir )][] = array(
+            //                     "name" => $f,
+            //                     "type" => "file",
+            //                     //"path" => $dir . '/' . $f,
+            //                     //"size" => filesize($dir . '/' . $f) // Gets the size of this file
+            //                 );
+            //             }
+            //         }
+
+            //     }
+
+            //     return $files;
+            // };
+
+            $dir = $params[0];
+            
+            // Create recursive dir iterator which skips dot folders
+            $dir = new \RecursiveDirectoryIterator($dir,
+                \FilesystemIterator::SKIP_DOTS);
+            
+            // Flatten the recursive iterator, folders come before their files
+            $it  = new \RecursiveIteratorIterator($dir,
+                \RecursiveIteratorIterator::SELF_FIRST);
+            
+            // Maximum depth is 1 level deeper than the base folder
+            $it->setMaxDepth(100);
+            
+            // Basic loop displaying different messages based on file or folder
+            foreach ($it as $fileinfo) {
+                $curDir = (empty($it->getSubPath()) ? '' : $it->getSubPath());
+                
+                if ($fileinfo->isDir()) {
+                    $return['/'.str_replace(['//', '/.'], ['/', '.'], $curDir)][] = array(
+                        "name" => $fileinfo->getFilename(),
+                        "type" => "folder",
+                    );
+                    //$return[str_replace(['//', '/.'], ['/', '.'], $curDir.'/'.$fileinfo->getFilename())] = array();
+                } elseif ($fileinfo->isFile()) {
+                    $return['/'.str_replace(['//', '/.'], ['/', '.'], $curDir)][] = array(
+                        "name" => $fileinfo->getFilename(),
+                        "type" => "file",
+                    );
+                }
+            }
+
+            // Run the recursive function
+
+            //$response = $scan($dir, $dir);
+
+            // Output the directory listing as JSON
+
+            header('Content-type: application/json');
+
+            return json_encode($return, JSON_NUMERIC_CHECK);
+        }
+        
+        public function getFile(array $params = array()) {
+
+            if (file_exists($params[0])) {
+                return base64_encode(file_get_contents($params[0]));
+            } else {
+                // create file
+                file_put_contents($params[0], '');
+                return base64_encode(file_get_contents($params[0]));
+            }
+        }
+        
+        public function deleteFile(array $params = array()) {
+
+            if (file_exists($params[0])) {
+                unlink($params[0]);
+                return base64_encode(true);
+            } else {
+                return base64_encode(true);
+            }
+        }
+
+        public function saveFile(array $params = array()) {
+
+            if (file_exists($params[0])) {
+                file_put_contents($params[0], @$params[1]);
+                return base64_encode(true);
+            } else {
+                return base64_encode(true);
+            }
+        }
+        
+        
 
     }
 
