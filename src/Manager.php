@@ -58,6 +58,13 @@ namespace Plinker\Tasks {
             } else {
                 $tasksource->description = '';
             }
+            
+            // description
+            if (!empty($params[4])) {
+                $tasksource->params = $params[4];
+            } else {
+                $tasksource->params = '';
+            }
                         
             // update - created/updated date
             if (empty($tasksource->created)) {
@@ -121,6 +128,13 @@ namespace Plinker\Tasks {
             } else {
                 $tasksource->description = '';
             }
+
+            // description
+            if (!empty($params[5])) {
+                $tasksource->params = $params[5];
+            } else {
+                $tasksource->params = '';
+            }
                         
             // update - created/updated date
             if (empty($tasksource->created)) {
@@ -162,6 +176,13 @@ namespace Plinker\Tasks {
         {
             // get task 
             $row = $this->model->load('tasksource', $params[0]);
+            
+            // remove all tasks
+            foreach ($row->ownTasks as $tasks) {
+                $this->model->trash($tasks);
+            }
+            
+            // remove task
             $this->model->trash($row);
             
             return true;
