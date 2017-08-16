@@ -37,7 +37,7 @@ namespace Plinker\Tasks {
             ]);
                         
             // update - source
-            $tasksource->source = $params[1];
+            $tasksource->source = str_replace("\r", "", $params[1]);
             $tasksource->checksum = md5($params[1]);
 
             /*
@@ -66,7 +66,7 @@ namespace Plinker\Tasks {
                 $tasksource->params = '';
             }
                         
-            // update - created/updated date
+            // update - Newd/updated date
             if (empty($tasksource->created)) {
                 $tasksource->updated = date_create()->format('Y-m-d h:i:s');
                 $tasksource->created = date_create()->format('Y-m-d h:i:s'); 
@@ -107,7 +107,7 @@ namespace Plinker\Tasks {
                         
             // update - source
             $tasksource->name = $params[1];
-            $tasksource->source = $params[2];
+            $tasksource->source = str_replace("\r", "", $params[2]);
             $tasksource->checksum = md5($params[2]);
 
             /*
@@ -136,7 +136,7 @@ namespace Plinker\Tasks {
                 $tasksource->params = '';
             }
                         
-            // update - created/updated date
+            // update - Newd/updated date
             if (empty($tasksource->created)) {
                 $tasksource->updated = date_create()->format('Y-m-d h:i:s');
                 $tasksource->created = date_create()->format('Y-m-d h:i:s'); 
@@ -204,7 +204,7 @@ namespace Plinker\Tasks {
         {
             // get task 
             if (!empty($params[0])) {
-                return $this->model->findAll('tasks', 'tasksource_id = ?', [$params[0]]);
+                return $this->model->findAll('tasks', 'tasksource_id = ? ORDER BY id DESC', [$params[0]]);
             } else {
                 return $this->model->findAll('tasks');
             }
@@ -302,11 +302,9 @@ namespace Plinker\Tasks {
             $return = null;
             if ($tasksource->type == 'serializableclosure') {
                 $source = unserialize($tasksource->source);
-
                 ob_start();
                 $return = $source($params[1]);
                 return ob_get_clean().$return;
-                
             } elseif ($tasksource->type == 'php-closure') {
                 ob_start();
                 eval('?>'.$tasksource->source);
@@ -314,9 +312,9 @@ namespace Plinker\Tasks {
                 return ob_get_clean().$return;
                 
             } elseif ($tasksource->type == 'bash') {
-                file_put_contents('./'.$tasksource->name.'.sh');
+                file_put_contents('tmp/'.md5($task->tasksource->name).'.sh', $task->tasksource->source);
                 ob_start();
-                echo shell_exec('/bin/bash ./'.$tasksource->name.'.sh');
+                echo shell_exec('/bin/bash tmp/'.md5($task->tasksource->name).'.sh');
                 return ob_get_clean();
             }
             
@@ -457,14 +455,12 @@ namespace Plinker\Tasks {
         public function saveFile(array $params = array()) {
 
             if (file_exists($params[0])) {
-                file_put_contents($params[0], @$params[1]);
+                file_put_contents($params[0], base64_decode(@$params[1]));
                 return base64_encode(true);
             } else {
                 return base64_encode(true);
             }
         }
-        
-        
 
     }
 

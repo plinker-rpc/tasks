@@ -8,10 +8,20 @@ class Model
 
     public function __construct($database)
     {
-        // hook in redbean
-        R::setup($database['dsn']);
-        R::freeze($database['freeze']);
-        R::freeze($database['debug'], '2');
+        // connect to redbean
+        if (!R::testConnection()) {
+
+            R::addDatabase(
+                'connection',
+                'mysql:host='.$database['host'].';dbname='.$database['name'],
+                $database['username'],
+                $database['password']
+            );
+                
+            R::selectDatabase('connection');
+            R::freeze($database['freeze']);
+            R::debug($database['debug'], 2);
+        }
     }
 
     /**

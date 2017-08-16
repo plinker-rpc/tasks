@@ -9,9 +9,9 @@ class Task
     public function __construct($database)
     {
         // hook in redbean
-        R::setup($database['dsn']);
+        R::setup('mysql:host='.$database['host'].';dbname='.$database['name']);
         R::freeze($database['freeze']);
-        R::freeze($database['debug'], '2');
+        R::debug($database['debug'], '2');
     }
 
     /**
