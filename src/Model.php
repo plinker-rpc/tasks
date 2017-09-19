@@ -5,12 +5,10 @@ use RedBeanPHP\R;
 
 class Model
 {
-
     public function __construct($database)
     {
         // connect to redbean
         if (!R::testConnection()) {
-
             R::addDatabase(
                 'connection',
                 'mysql:host='.$database['host'].';dbname='.$database['name'],
@@ -40,7 +38,7 @@ class Model
         $row->import($data);
 
         return $row;
-    }        
+    }
 
     /**
      * findOrCreate
@@ -77,7 +75,7 @@ class Model
         } else {
             return R::find($table);
         }
-    } 
+    }
 
     /**
      * Find One
@@ -102,7 +100,7 @@ class Model
             return R::findAll($table, $where, $params);
         } elseif ($where !== null && $params === null) {
             return R::findAll($table, $where);
-        }else{
+        } else {
             return R::findAll($table);
         }
     }
@@ -125,7 +123,7 @@ class Model
     {
         $row->import($data);
         return $row;
-    }        
+    }
 
     /**
      * Store
@@ -168,5 +166,4 @@ class Model
     {
         return R::nuke();
     }
-
 }

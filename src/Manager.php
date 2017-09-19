@@ -3,8 +3,8 @@ namespace Plinker\Tasks {
 
     use Opis\Closure\SerializableClosure;
 
-    class Manager {
-
+    class Manager
+    {
         public $config = array();
         private $tab;
 
@@ -18,7 +18,7 @@ namespace Plinker\Tasks {
         }
 
         /**
-         * 
+         *
          */
         public function create(array $params = array())
         {
@@ -69,9 +69,9 @@ namespace Plinker\Tasks {
             // update - Newd/updated date
             if (empty($tasksource->created)) {
                 $tasksource->updated = date_create()->format('Y-m-d h:i:s');
-                $tasksource->created = date_create()->format('Y-m-d h:i:s'); 
+                $tasksource->created = date_create()->format('Y-m-d h:i:s');
             } else {
-                $tasksource->updated = date_create()->format('Y-m-d h:i:s'); 
+                $tasksource->updated = date_create()->format('Y-m-d h:i:s');
             }
                         
             // store
@@ -82,7 +82,7 @@ namespace Plinker\Tasks {
         }
 
         /**
-         * 
+         *
          */
         public function update(array $params = array())
         {
@@ -139,9 +139,9 @@ namespace Plinker\Tasks {
             // update - Newd/updated date
             if (empty($tasksource->created)) {
                 $tasksource->updated = date_create()->format('Y-m-d h:i:s');
-                $tasksource->created = date_create()->format('Y-m-d h:i:s'); 
+                $tasksource->created = date_create()->format('Y-m-d h:i:s');
             } else {
-                $tasksource->updated = date_create()->format('Y-m-d h:i:s'); 
+                $tasksource->updated = date_create()->format('Y-m-d h:i:s');
             }
                         
             // store
@@ -152,29 +152,29 @@ namespace Plinker\Tasks {
         }
         
         /**
-         * 
+         *
          */
         public function get(array $params = array())
         {
-            // get task 
+            // get task
             return $this->model->findOne('tasksource', 'name = ?', [$params[0]]);
         }
 
         /**
-         * 
+         *
          */
         public function getSource(array $params = array())
         {
-            // get task 
+            // get task
             return $this->model->findOne('tasksource', 'id = ?', [$params[0]]);
         }
         
         /**
-         * 
+         *
          */
         public function removeSource(array $params = array())
         {
-            // get task 
+            // get task
             $row = $this->model->load('tasksource', $params[0]);
             
             // remove all tasks
@@ -189,20 +189,20 @@ namespace Plinker\Tasks {
         }
 
         /**
-         * 
+         *
          */
         public function getTaskSources(array $params = array())
         {
-            // get task 
+            // get task
             return $this->model->findAll('tasksource');
         }
         
         /**
-         * 
+         *
          */
         public function getTasksLog(array $params = array())
         {
-            // get task 
+            // get task
             if (!empty($params[0])) {
                 return $this->model->findAll('tasks', 'tasksource_id = ? ORDER BY id DESC', [$params[0]]);
             } else {
@@ -211,11 +211,11 @@ namespace Plinker\Tasks {
         }
 
         /**
-         * 
+         *
          */
         public function getTasks(array $params = array())
         {
-            // get task 
+            // get task
             if (!empty($params[0])) {
                 return $this->model->findOne('tasks', 'id = ?', [$params[0]]);
             } else {
@@ -224,11 +224,11 @@ namespace Plinker\Tasks {
         }
         
         /**
-         * 
+         *
          */
         public function getTasksLogCount(array $params = array())
         {
-            // get task 
+            // get task
             if (!empty($params[0])) {
                 return $this->model->count('tasks', 'tasksource_id = ?', [$params[0]]);
             } else {
@@ -237,11 +237,11 @@ namespace Plinker\Tasks {
         }
         
         /**
-         * 
+         *
          */
         public function removeTasksLog(array $params = array())
         {
-            // get task 
+            // get task
             $row = $this->model->load('tasks', $params[0]);
             $this->model->trash($row);
             
@@ -287,7 +287,7 @@ namespace Plinker\Tasks {
          */
         public function runNow(array $params = array())
         {
-            // get task 
+            // get task
             $tasksource = $this->model->findOne('tasksource', 'name = ?', [$params[0]]);
             
             if (empty($tasksource)) {
@@ -310,7 +310,6 @@ namespace Plinker\Tasks {
                 eval('?>'.$tasksource->source);
                 $return = $function($params[1]);
                 return ob_get_clean().$return;
-                
             } elseif ($tasksource->type == 'bash') {
                 file_put_contents('tmp/'.md5($task->tasksource->name).'.sh', $task->tasksource->source);
                 ob_start();
@@ -322,7 +321,7 @@ namespace Plinker\Tasks {
         }
 
         /**
-         * 
+         *
          */
         public function clear(array $params = array())
         {
@@ -332,7 +331,7 @@ namespace Plinker\Tasks {
         }
 
         /**
-         * 
+         *
          */
         public function reset(array $params = array())
         {
@@ -392,12 +391,16 @@ namespace Plinker\Tasks {
             $dir = $params[0];
             
             // Create recursive dir iterator which skips dot folders
-            $dir = new \RecursiveDirectoryIterator($dir,
-                \FilesystemIterator::SKIP_DOTS);
+            $dir = new \RecursiveDirectoryIterator(
+                $dir,
+                \FilesystemIterator::SKIP_DOTS
+            );
             
             // Flatten the recursive iterator, folders come before their files
-            $it  = new \RecursiveIteratorIterator($dir,
-                \RecursiveIteratorIterator::SELF_FIRST);
+            $it  = new \RecursiveIteratorIterator(
+                $dir,
+                \RecursiveIteratorIterator::SELF_FIRST
+            );
             
             // Maximum depth is 1 level deeper than the base folder
             $it->setMaxDepth(100);
@@ -431,8 +434,8 @@ namespace Plinker\Tasks {
             return json_encode($return, JSON_NUMERIC_CHECK);
         }
         
-        public function getFile(array $params = array()) {
-
+        public function getFile(array $params = array())
+        {
             if (file_exists($params[0])) {
                 return base64_encode(file_get_contents($params[0]));
             } else {
@@ -442,8 +445,8 @@ namespace Plinker\Tasks {
             }
         }
         
-        public function deleteFile(array $params = array()) {
-
+        public function deleteFile(array $params = array())
+        {
             if (file_exists($params[0])) {
                 unlink($params[0]);
                 return base64_encode(true);
@@ -452,8 +455,8 @@ namespace Plinker\Tasks {
             }
         }
 
-        public function saveFile(array $params = array()) {
-
+        public function saveFile(array $params = array())
+        {
             if (file_exists($params[0])) {
                 file_put_contents($params[0], base64_decode(@$params[1]));
                 return base64_encode(true);
@@ -461,7 +464,6 @@ namespace Plinker\Tasks {
                 return base64_encode(true);
             }
         }
-
     }
 
 }
