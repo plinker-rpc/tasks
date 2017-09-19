@@ -138,10 +138,10 @@ namespace Plinker\Tasks {
                         
             // update - Newd/updated date
             if (empty($tasksource->created)) {
-                $tasksource->updated = date_create()->format('Y-m-d h:i:s');
-                $tasksource->created = date_create()->format('Y-m-d h:i:s');
+                $tasksource->updated = date_create()->format('Y-m-d H:i:s');
+                $tasksource->created = date_create()->format('Y-m-d H:i:s');
             } else {
-                $tasksource->updated = date_create()->format('Y-m-d h:i:s');
+                $tasksource->updated = date_create()->format('Y-m-d H:i:s');
             }
                         
             // store
