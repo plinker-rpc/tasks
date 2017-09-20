@@ -17,6 +17,7 @@
         "email": "plinker@icodes.it"
     },
     "require": {
+        "league/climate": "^3.2"
     },
     "autoload": {
         "psr-4": {
