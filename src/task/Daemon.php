@@ -39,7 +39,6 @@ namespace Plinker\Tasks\Task {
                 }
 
                 foreach ($tasks as $task) {
-
                     if (!empty($task->run_last) && !empty($task->repeats)) {
                         if ((strtotime($task->run_last)+$task->sleep) > strtotime(date_create()->format('Y-m-d H:i:s'))) {
                             $this->task->console->out(
@@ -81,7 +80,6 @@ namespace Plinker\Tasks\Task {
                             $source = $task->tasksource->source;
                             eval('?>'.$source);
                             $task->result = ob_get_clean();
-                            
                         } elseif ($task->tasksource->type == 'bash') {
                             file_put_contents('../tmp/'.md5($task->tasksource->name).'.sh', $task->tasksource->source);
                             ob_start();

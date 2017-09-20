@@ -179,7 +179,7 @@ trait RedBean
     }
     
     /**
-     * 
+     *
      */
     public function inspect(array $params = array())
     {
