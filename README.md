@@ -6,7 +6,7 @@ Plinker PHP RPC client/server makes it really easy to link and execute PHP compo
 The tasks component allows you to write code based tasks which are completed by a daemon, 
 this could allow you to create a single interface to control a cluster of servers tasks.
 
-Want to see an eample project? Check out [PlinkerUI](https://github.com/lcherone/PlinkerUI)
+Want to see an example project? Check out [PlinkerUI](https://github.com/lcherone/PlinkerUI)
 
 **Composer**
 
