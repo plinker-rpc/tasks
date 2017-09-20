@@ -6,7 +6,7 @@ namespace Plinker\Tasks\Task {
     /**
      *
      */
-    class Daemon
+    class Queue
     {
         use Lib\Traits\RedBean;
 
@@ -47,7 +47,7 @@ namespace Plinker\Tasks\Task {
                             continue;
                         }
                     }
-                    
+
                     $this->task->console->out(
                         '<light_green><bold>Running -  '.$task->name.' - '.$task->params.'</bold></light_green>'
                     );
