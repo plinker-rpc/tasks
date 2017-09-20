@@ -9,16 +9,26 @@ class Model
     {
         // connect to redbean
         if (!R::testConnection()) {
-            R::addDatabase(
-                'connection',
-                'mysql:host='.$database['host'].';dbname='.$database['name'],
-                $database['username'],
-                $database['password']
-            );
-                
-            R::selectDatabase('connection');
-            R::freeze($database['freeze']);
-            R::debug($database['debug'], 2);
+            if (!empty($database['username'])) {
+                R::setup(
+                    'mysql:host='.$database['host'].';dbname='.$database['name'],
+                    $database['username'],
+                    $database['password']
+                );
+            } elseif (!empty($database['dsn'])) {
+                R::setup(
+                    $database['dsn'],
+                    $database['username'],
+                    $database['password']
+                );
+            } else {
+                R::setup(
+                    'mysql:host='.$database['host'].';dbname='.$database['name']
+                );
+            }
+    
+            R::freeze(($database['freeze'] === true));
+            R::debug(($database['debug'] === true));
         }
     }
 

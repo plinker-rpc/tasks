@@ -1,5 +1,5 @@
 <?php
-namespace Plinker\Tasks\Tasks {
+namespace Plinker\Tasks\Task {
 
     use Plinker\Tasks\Lib;
 
@@ -8,7 +8,6 @@ namespace Plinker\Tasks\Tasks {
      */
     class Daemon
     {
-        #use Lib\Traits\Log;
         use Lib\Traits\RedBean;
 
         /**
@@ -34,25 +33,25 @@ namespace Plinker\Tasks\Tasks {
 
             try {
                 if (!empty($this->task->config['debug'])) {
-                    //$this->task->climate->out(
-                    //    '<light_blue><bold><underline>Tasks:</underline></bold></light_blue>'
-                    //);
+                    $this->task->console->out(
+                        '<light_blue><bold><underline>Tasks:</underline></bold></light_blue>'
+                    );
                 }
 
                 foreach ($tasks as $task) {
 
                     if (!empty($task->run_last) && !empty($task->repeats)) {
                         if ((strtotime($task->run_last)+$task->sleep) > strtotime(date_create()->format('Y-m-d H:i:s'))) {
-                            //$this->task->climate->out(
-                            //    '<light_red>Sleeping ('.(strtotime($task->run_next)-strtotime(date_create()->format('Y-m-d H:i:s'))).'): - '.$task->name.' - '.$task->params.'</light_red>'
-                            //);
+                            $this->task->console->out(
+                                '<light_red>Sleeping ('.(strtotime($task->run_next)-strtotime(date_create()->format('Y-m-d H:i:s'))).'): - '.$task->name.' - '.$task->params.'</light_red>'
+                            );
                             continue;
                         }
                     }
                     
-                    //$this->task->climate->out(
-                    //    '<light_green><bold>Running -  '.$task->name.' - '.$task->params.'</bold></light_green>'
-                    //);
+                    $this->task->console->out(
+                        '<light_green><bold>Running -  '.$task->name.' - '.$task->params.'</bold></light_green>'
+                    );
 
                     $error = false;
 
@@ -77,22 +76,7 @@ namespace Plinker\Tasks\Tasks {
 
                         //
                         $return = null;
-                        if ($task->tasksource->type == 'serializableclosure') {
-                            ob_start();
-                            $source = unserialize($task->tasksource->source);
-                            $return = $source($params);
-                            $task->result = ob_get_clean().$return;
-                            
-                        } elseif ($task->tasksource->type == 'php-closure') {
-                            ob_start();
-                            $source = $task->tasksource->source;
-                            $source = '<?php'.PHP_EOL.'$function = function ($params = []) {'.PHP_EOL."\tob_start();".PHP_EOL."\t".$source.PHP_EOL."\t".'return trim(ob_get_clean());'.PHP_EOL.'};';
-                            
-                            eval('?>'.$source);
-                            $return = $function(@$params);
-                            $task->result = ob_get_clean().$return;
-                            
-                        } elseif ($task->tasksource->type == 'php-raw') {
+                        if ($task->tasksource->type == 'php') {
                             ob_start();
                             $source = $task->tasksource->source;
                             eval('?>'.$source);
@@ -106,16 +90,15 @@ namespace Plinker\Tasks\Tasks {
                         }
 
                         $this->store($task);
-
                     } else {
                         $this->trash($task);
-                        //$this->task->climate->out(
-                        //    '<light_blue><bold>Task has no source.</bold></light_blue>'
-                        //);
+                        $this->task->console->out(
+                            '<light_blue><bold>Task has no source.</bold></light_blue>'
+                        );
                     }
                 }
             } catch (\Exception $e) {
-                //$this->log($e->getMessage(), 'error');
+                //
             }
         }
     }

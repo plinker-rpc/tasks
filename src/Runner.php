@@ -1,25 +1,47 @@
 <?php
 namespace Plinker\Tasks;
 
-use Opis\Closure\SerializableClosure;
+use League\CLImate\CLImate;
 
+/**
+ *
+ */
 class Runner
 {
-    public $vars = [];
-    public $state = [];
+    public $vars   = [];
+    public $state  = [];
     public $config = [];
 
     /**
-     * 
+     * @param array $config - Config which you want to pass to the task.
      */
-    public function __construct($config = [])
+    public function __construct($config = [
+        // database connection
+        'database' => [
+            'dsn' => 'sqlite:./database.db',
+            'host' => '',
+            'name' => '',
+            'username' => '',
+            'password' => '',
+            'freeze' => false,
+            'debug' => false,
+         ],
+         
+        // displays output to task runner console
+        'debug' => true,
+        
+        // daemon sleep time
+        'sleep_time' => 1,
+        'pid_path' => './pids'
+    ])
     {
         $this->config = $config;
         $this->constructBootTime = microtime(true);
+        $this->console = new CLImate;
     }
 
     /**
-     * setter 
+     * Setter
      */
     public function __set($index, $value)
     {
@@ -27,7 +49,7 @@ class Runner
     }
 
     /**
-     * getter 
+     * Getter
      */
     public function __get($index)
     {
@@ -35,58 +57,55 @@ class Runner
     }
 
     /**
-     * run once
+     * Run once
+     *
+     * @param string $class - Name of the task class in /src/task/*.
+     * @param array $config - Config which you want to pass to the task.
      */
     public function run($class, $config = [])
     {
         $this->config = $this->config + $config;
 
-        // is the cli tool because it contains the tools array
-        if (!empty($this->config['tools'])) {
-            $this->class = __NAMESPACE__ . '\\Tools\\' . $class;
-        } else {
-            $this->class = __NAMESPACE__ . '\\Tasks\\' . $class;
-        }
+        $this->class = __NAMESPACE__ . '\\Task\\' . $class;
 
         $this->task = new $this->class($this);
 
-        if ($this->config['debug'] && !isset($this->config['tools'])) {
-            //$this->climate->addArt('lib/art');
-            //$this->climate->draw('header');
-            //$this->climate->out("<bold><red>DEBUG MODE ENABLED:</red></bold>");
-            //$this->climate->out(" - <underline>Turn off debug in production</underline>, which will stop this output to the console.");
+        if (!empty($this->config['debug']) && !isset($this->config['tools'])) {
+            $this->console->out(
+                "<bold><red>DEBUG MODE ENABLED:</red></bold>\n".
+                " - <underline>Turn off debug in production</underline>, which will stop this output to the console."
+            );
         }
 
         $this->task->execute();
     }
 
     /**
-     * daemon
+     * Daemon - run continuously for 1 minute.
+     *
+     * @param string $class - Name of the task class in /src/task/*.
+     * @param array $config - Config which you want to pass to the task.
      */
     public function daemon($class, $config = [])
     {
         $this->config = (array) $this->config + (array) $config;
 
-        $pid = new lib\PID(($this->config['pid_path'] ? $this->config['pid_path'] : './'), $class);
+        $pid = new lib\PID((!empty($this->config['pid_path']) ? $this->config['pid_path'] : './'), $class);
 
-        $sleep_time = ($this->config['sleep_time'] ? $this->config['sleep_time'] : 1);
-        
-        //clear terminal
-        //$this->climate->clear();
+        $sleep_time = !empty($this->config['sleep_time']) ? $this->config['sleep_time'] : 1;
 
         if ($pid->running) {
-            if ($this->config['debug']) {
-                //$this->climate->addArt('lib/art');
-                //$this->climate->draw('header');
-                //$this->climate->out("<bold><red>DEBUG MODE ENABLED:</red></bold>");
-                //$this->climate->out(" - <underline>Turn off debug in production</underline>, which will stop this output to the console.");
-                //$this->climate->out(" - Initial Memory usage: ".$pid->script_memory_usage().".");
-                //$this->climate->out(" - Sleep time: $sleep_time second between iterations.");
-                //$this->climate->error("Exited, process already running!");
+            if (!empty($this->config['debug'])) {
+                $this->console->out(
+                    "<bold><red>DEBUG MODE ENABLED:</red></bold>\n".
+                    " - <underline>Turn off debug in production</underline>, which will stop this output to the console.\n".
+                    " - Initial Memory usage: ".$pid->script_memory_usage().".\n".
+                    " - Sleep time: $sleep_time second between iterations.\n".
+                    " - <red>Exited, process already running!</red>"
+                );
             }
             exit;
         } else {
-
             $startTime = microtime(true);
             $stopTime = $startTime + 59;
 
@@ -95,62 +114,58 @@ class Runner
             }
 
             while (microtime(true) < $stopTime) {
-                
-                if ($this->config['debug']) {
-                    //$this->climate->clear();
-                    //$this->climate->addArt('lib/art');
-                    //$this->climate->draw('header');
-                    //$this->climate->out("<bold><red>DEBUG MODE ENABLED:</red></bold>");
-                    //$this->climate->out(" - <underline>Turn off debug in production</underline>, which will stop this output to the console.");
-                    //$this->climate->out(" - Initial Memory usage: ".$pid->script_memory_usage().".");
-                    //$this->climate->out(" - Sleep time: $sleep_time second between iterations.");
-                    //$this->climate->out(" - Stop Time: ".@date_create('@'.$stopTime)->format('H:i:s'));
+                if (!empty($this->config['debug'])) {
+                    $this->console->clear();
+                    $this->console->out(
+                        "<bold><red>DEBUG MODE ENABLED:</red></bold>\n".
+                        " - <underline>Turn off debug in production</underline>, which will stop this output to the console.\n".
+                        " - Initial Memory usage: ".$pid->script_memory_usage().".\n".
+                        " - Sleep time: $sleep_time second between iterations.\n".
+                        " - Stop Time: ".@date_create('@'.(int) $stopTime)->format('H:i:s')
+                    );
                 }
 
                 // time the iteration as not to be running when next cron runs ...
                 $loopStart = microtime(true);
 
-                if ($this->config['debug']) {
-                    //$this->climate->border();
-                    //$this->climate->out(" <bold><green># Start Iteration $i</green></bold>");
-                    //$this->climate->br();
+                if (!empty($this->config['debug'])) {
+                    $this->console->border();
+                    $this->console->out(" <bold><green># Start Iteration $i</green></bold>\n");
                 }
 
                 // execute task
-                $this->class = __NAMESPACE__.'\\Tasks\\'.$class;
+                $this->class = __NAMESPACE__.'\\Task\\'.$class;
                 $this->task = new $this->class($this);
 
                 $this->task->execute();
 
-                if ($this->config['debug']) {
-                    //$this->climate->br();
-                    //$this->climate->out(" - Finished Iteration");
-                    //$this->climate->out(" - Took: ".(microtime(true) - $loopStart)." seconds");
-                    //$this->climate->out(" - Memory usage: ".$pid->script_memory_usage());
-                    //$this->climate->out(" - Sleeping for ".((int) $sleep_time)." seconds");
-                    //$this->climate->out(" - Now: ".(microtime(true)+(microtime(true) - $loopStart)).' Stop time:'.$stopTime.' - When: '.($stopTime-(microtime(true)+(microtime(true) - $loopStart))));
-                    //$this->climate->out(" - Total running time ".(microtime(true) - $this->constructBootTime)." seconds");
+                if (!empty($this->config['debug'])) {
+                    $this->console->out(
+                        " - Finished Iteration.\n".
+                        " - Took: ".(microtime(true) - $loopStart)." seconds.\n".
+                        " - Sleeping for ".((int) $sleep_time)." seconds.\n".
+                        " - Stops in: ".($stopTime-(microtime(true)+(microtime(true) - $loopStart)))." seconds.\n".
+                        " - Total running time ".(microtime(true) - $this->constructBootTime)." seconds."
+                    );
                 }
+                
+                //
                 sleep((int) $sleep_time);
 
-                // break if next task will overrun minute, +1 second fudge
+                // break if next task will overrun minute
                 if ((microtime(true)+(microtime(true) - $loopStart)) >= $stopTime) {
-                    
-                    if ($this->config['debug']) {
-                        //$this->climate->out(" - Now: ".(microtime(true)+(microtime(true) - $loopStart)).' Stop time:'.$stopTime.' - When: '.($stopTime-(microtime(true)+(microtime(true) - $loopStart))));
-                        //$this->climate->out(" - Process completed in ".(microtime(true) - $loopStart)." seconds");
-                        //$this->climate->shout(" - Total running time ".(microtime(true) - $this->constructBootTime)." seconds");
+                    if (!empty($this->config['debug'])) {
+                        $this->console->out(
+                            " - Daemon finished."
+                        );
                     }
                     break;
                 }
 
-                if ($this->config['debug']) {
+                if (!empty($this->config['debug'])) {
                     $i++;
                 }
             }
-
         }
-
     }
-
 }

@@ -3,10 +3,11 @@ namespace Plinker\Tasks\Lib\Traits;
 
 use RedBeanPHP\R;
 
-trait RedBean {
+trait RedBean
+{
 
     /**
-     * 
+     *
      */
     public function redbeanConnect()
     {
@@ -15,13 +16,13 @@ trait RedBean {
                 'mysql:host='.$this->task->config['database']['host'].';dbname='.$this->task->config['database']['name'],
                 $this->task->config['database']['username'],
                 $this->task->config['database']['password']
-            );  
+            );
         } elseif (!empty($this->task->config['database']['dsn'])) {
             R::setup(
                 $this->task->config['database']['dsn'],
                 $this->task->config['database']['username'],
                 $this->task->config['database']['password']
-            ); 
+            );
         } else {
             R::setup(
                 'mysql:host='.$this->task->config['database']['host'].';dbname='.$this->task->config['database']['name']
@@ -50,7 +51,7 @@ trait RedBean {
         $row->import($data);
 
         return $row;
-    }        
+    }
 
     /**
      * findOrCreate
@@ -87,7 +88,7 @@ trait RedBean {
         } else {
             return R::find($table);
         }
-    } 
+    }
 
     /**
      * Find One
@@ -112,7 +113,7 @@ trait RedBean {
             return R::findAll($table, $where, $params);
         } elseif ($where !== null && $params === null) {
             return R::findAll($table, $where);
-        }else{
+        } else {
             return R::findAll($table);
         }
     }
@@ -125,7 +126,7 @@ trait RedBean {
         $row->import($data);
         
         return $row;
-    }        
+    }
 
     /**
      * Store
@@ -176,6 +177,16 @@ trait RedBean {
     {
         return R::nuke();
     }
-
-
+    
+    /**
+     * 
+     */
+    public function inspect(array $params = array())
+    {
+        if (!empty($params[0])) {
+            return R::inspect($params[0]);
+        } else {
+            return R::inspect();
+        }
+    }
 }

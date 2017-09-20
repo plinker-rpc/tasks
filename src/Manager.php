@@ -1,17 +1,17 @@
 <?php
 namespace Plinker\Tasks {
 
+    use Plinker\Tasks\Lib;
     use Opis\Closure\SerializableClosure;
 
     class Manager
     {
         public $config = array();
-        private $tab;
 
         public function __construct(array $config = array())
         {
             $this->config = $config;
-            
+
             // load model
             $this->model = new Model($this->config['database']);
             //$this->task = new Task($this->config['database']);
@@ -30,12 +30,16 @@ namespace Plinker\Tasks {
                 return 'Error: missing second argument.';
             }
 
-            // find or create new task source
-            $tasksource = $this->model->findOrCreate([
-                'tasksource',
-                'name' => $params[0]
-            ]);
-                        
+            try {
+                // find or create new task source
+                $tasksource = $this->model->findOrCreate([
+                    'tasksource',
+                    'name' => $params[0]
+                ]);
+            } catch (\Exception $e) {
+                return $e->getMessage();
+            }
+      
             // update - source
             $tasksource->source = str_replace("\r", "", $params[1]);
             $tasksource->checksum = md5($params[1]);
@@ -73,7 +77,7 @@ namespace Plinker\Tasks {
             } else {
                 $tasksource->updated = date_create()->format('Y-m-d h:i:s');
             }
-                        
+
             // store
             $this->model->store($tasksource);
 
@@ -158,6 +162,52 @@ namespace Plinker\Tasks {
         {
             // get task
             return $this->model->findOne('tasksource', 'name = ?', [$params[0]]);
+        }
+        
+        /**
+         *
+         */
+        public function status(array $params = array())
+        {
+            // find or create new task source
+            $task = $this->model->findOne('tasks', 'name = ?', [
+                $params[0]
+            ]);
+            
+            if (empty($task->id)) {
+                return 'not found';
+            }
+            
+            if (!empty($task->completed)) {
+                return 'completed';
+            }
+            
+            if (!empty($task->repeats) && empty($task->completed)) {
+                return 'running';
+            }
+
+            return false;
+        }
+   
+        /**
+         *
+         */
+        public function runCount(array $params = array())
+        {
+            // find or create new task source
+            $task = $this->model->findOne('tasks', 'name = ?', [
+                $params[0]
+            ]);
+            
+            if (empty($task->id)) {
+                return 0;
+            }
+            
+            if (!empty($task->run_count)) {
+                return $task->run_count;
+            }
+            
+            return 0;
         }
 
         /**
@@ -291,24 +341,18 @@ namespace Plinker\Tasks {
             $tasksource = $this->model->findOne('tasksource', 'name = ?', [$params[0]]);
             
             if (empty($tasksource)) {
-                return ['error' => 'task not found'];
+                return ['error' => 'Task not found'];
             }
             
             if (empty($tasksource->source)) {
                 $this->model->trash($tasksource);
-                return ['error' => 'task has no source, task has been removed'];
+                return ['error' => 'Task has no source, task has been removed'];
             }
             
-            $return = null;
-            if ($tasksource->type == 'serializableclosure') {
-                $source = unserialize($tasksource->source);
-                ob_start();
-                $return = $source($params[1]);
-                return ob_get_clean().$return;
-            } elseif ($tasksource->type == 'php-closure') {
+            //
+            if ($tasksource->type == 'php') {
                 ob_start();
                 eval('?>'.$tasksource->source);
-                $return = $function($params[1]);
                 return ob_get_clean().$return;
             } elseif ($tasksource->type == 'bash') {
                 file_put_contents('tmp/'.md5($task->tasksource->name).'.sh', $task->tasksource->source);
