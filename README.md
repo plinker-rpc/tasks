@@ -6,7 +6,7 @@ Plinker PHP RPC client/server makes it really easy to link and execute PHP compo
 The tasks component allows you to write code based tasks which are completed by a daemon, 
 this could allow you to create a single interface to control a cluster of servers tasks.
 
-Want to see an example project? Check out [PlinkerUI](https://github.com/lcherone/PlinkerUI)
+Want to see an example project? Check out [PlinkerUI](https://github.com/lcherone/PlinkerUI).
 
 **Composer**
 
@@ -16,6 +16,8 @@ Want to see an example project? Check out [PlinkerUI](https://github.com/lcheron
     		"plinker/tasks": ">=v0.1"
     	}
     }
+
+[Example source](https://github.com/plinker-rpc/development/tree/master/examples/tasks)
 
 You should create a file which will be run via cron, for example:
 
