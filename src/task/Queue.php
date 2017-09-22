@@ -86,6 +86,8 @@ namespace Plinker\Tasks\Task {
                             echo shell_exec('/bin/bash ../tmp/'.md5($task->tasksource->name).'.sh');
                             $task->result = ob_get_clean();
                         }
+                        
+                        print_r($task->result);
 
                         $this->store($task);
                     } else {
