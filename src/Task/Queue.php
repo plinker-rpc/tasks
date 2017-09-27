@@ -87,7 +87,9 @@ namespace Plinker\Tasks\Task {
                             $task->result = ob_get_clean();
                         }
                         
-                        print_r($task->result);
+                        if (!empty($this->task->config['debug'])) {
+                            print_r($task->result);
+                        }
 
                         $this->store($task);
                     } else {

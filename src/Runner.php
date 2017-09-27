@@ -90,7 +90,7 @@ class Runner
     {
         $this->config = (array) $this->config + (array) $config;
 
-        $pid = new lib\PID((!empty($this->config['pid_path']) ? $this->config['pid_path'] : './'), $class);
+        $pid = new Lib\PID((!empty($this->config['pid_path']) ? $this->config['pid_path'] : './'), $class);
 
         $sleep_time = !empty($this->config['sleep_time']) ? $this->config['sleep_time'] : 1;
 
