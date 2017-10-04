@@ -41,16 +41,20 @@ namespace Plinker\Tasks\Task {
                 foreach ($tasks as $task) {
                     if (!empty($task->run_last) && !empty($task->repeats)) {
                         if ((strtotime($task->run_last)+$task->sleep) > strtotime(date_create()->format('Y-m-d H:i:s'))) {
-                            $this->task->console->out(
-                                '<light_red>Sleeping ('.(strtotime($task->run_next)-strtotime(date_create()->format('Y-m-d H:i:s'))).'): - '.$task->name.' - '.$task->params.'</light_red>'
-                            );
+                            if (!empty($this->task->config['debug'])) {
+                                $this->task->console->out(
+                                    '<light_red>Sleeping ('.(strtotime($task->run_next)-strtotime(date_create()->format('Y-m-d H:i:s'))).'): - '.$task->name.' - '.$task->params.'</light_red>'
+                                );
+                            }
                             continue;
                         }
                     }
 
-                    $this->task->console->out(
-                        '<light_green><bold>Running -  '.$task->name.' - '.$task->params.'</bold></light_green>'
-                    );
+                    if (!empty($this->task->config['debug'])) {
+                        $this->task->console->out(
+                            '<light_green><bold>Running -  '.$task->name.' - '.$task->params.'</bold></light_green>'
+                        );
+                    }
 
                     $error = false;
 
@@ -67,9 +71,7 @@ namespace Plinker\Tasks\Task {
                         }
                         
                         $task->run_count = (empty($task->run_count) ? 1 : (int) $task->run_count + 1);
-                        
-                        $this->store($task);
-                        
+
                         //
                         $params = json_decode($task->params, true);
 
@@ -94,9 +96,11 @@ namespace Plinker\Tasks\Task {
                         $this->store($task);
                     } else {
                         $this->trash($task);
-                        $this->task->console->out(
-                            '<light_blue><bold>Task has no source.</bold></light_blue>'
-                        );
+                        if (!empty($this->task->config['debug'])) {
+                            $this->task->console->out(
+                                '<light_blue><bold>Task has no source.</bold></light_blue>'
+                            );
+                        }
                     }
                 }
             } catch (\Exception $e) {
