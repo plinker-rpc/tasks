@@ -30,6 +30,9 @@ class Runner
         // displays output to task runner console
         'debug' => true,
         
+        // log output to file ./logs/d-m-Y.log
+        'log' => false,
+        
         // daemon sleep time
         'sleep_time' => 1,
         'pid_path' => './pids'
@@ -88,9 +91,9 @@ class Runner
      */
     public function daemon($class, $config = [])
     {
-        $this->config = (array) $this->config + (array) $config;
+        $this->config = (array) $config + (array) $this->config;
 
-        $pid = new Lib\PID((!empty($this->config['pid_path']) ? $this->config['pid_path'] : './'), $class);
+        $pid = new Lib\PID((!empty($this->config['pid_path']) ? $this->config['pid_path'] : './pids'), $class);
 
         $sleep_time = !empty($this->config['sleep_time']) ? $this->config['sleep_time'] : 1;
 
