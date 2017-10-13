@@ -231,7 +231,7 @@ namespace Plinker\Tasks {
         public function getTaskSources(array $params = array())
         {
             // get task
-            return $this->model->findAll('tasksource');
+            return $this->model->findAll('tasksource', 'LIMIT 1');
         }
 
         /**
