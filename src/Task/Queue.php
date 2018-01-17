@@ -83,6 +83,9 @@ namespace Plinker\Tasks\Task {
                             eval('?>'.$source);
                             $task->result = ob_get_clean();
                         } elseif ($task->tasksource->type == 'bash') {
+                            if (!file_exists('../tmp/')) {
+                                mkdir('../tmp/', 0755, true);
+                            }
                             file_put_contents('../tmp/'.md5($task->tasksource->name).'.sh', $task->tasksource->source);
                             ob_start();
                             echo shell_exec('/bin/bash ../tmp/'.md5($task->tasksource->name).'.sh');
