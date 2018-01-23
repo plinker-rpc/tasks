@@ -28,7 +28,7 @@ namespace Plinker\Tasks\Task {
          */
         public function execute()
         {
-            // find all tasks
+            // find tasks
             $tasks = $this->find('tasks', ' (completed IS NULL OR completed = "" OR completed = 0) ORDER BY id ASC ');
 
             try {
@@ -39,20 +39,23 @@ namespace Plinker\Tasks\Task {
                 }
 
                 foreach ($tasks as $task) {
+                    
+                    //
                     if (!empty($task->run_last) && !empty($task->repeats)) {
                         if ((strtotime($task->run_last)+$task->sleep) > strtotime(date_create()->format('Y-m-d H:i:s'))) {
                             if (!empty($this->task->config['debug'])) {
                                 $this->task->console->out(
-                                    '<light_red>Sleeping ('.(strtotime($task->run_next)-strtotime(date_create()->format('Y-m-d H:i:s'))).'): - '.$task->name.' - '.$task->params.'</light_red>'
+                                    '<light_red>Sleeping ('.(strtotime($task->run_next)-strtotime(date_create()->format('Y-m-d H:i:s'))).'): '.$task->name/*.' - '.$task->params*/.'</light_red>'
                                 );
                             }
                             continue;
                         }
                     }
 
+                    //
                     if (!empty($this->task->config['debug'])) {
                         $this->task->console->out(
-                            '<light_green><bold>Running -  '.$task->name.' - '.$task->params.'</bold></light_green>'
+                            '<light_green><bold>Running: '.$task->name.' - '.$task->params.'</bold></light_green>'
                         );
                     }
 

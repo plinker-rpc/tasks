@@ -18,17 +18,17 @@ class Runner
     public function __construct($config = [
         // database connection
         'database' => [
-            'dsn' => 'sqlite:./database.db',
-            'host' => '',
-            'name' => '',
+            'dsn'      => 'sqlite:./database.db',
+            'host'     => '',
+            'name'     => '',
             'username' => '',
             'password' => '',
-            'freeze' => false,
-            'debug' => false,
+            'freeze'   => false,
+            'debug'    => false,
          ],
          
         // displays output to task runner console
-        'debug' => true,
+        'debug' => false,
         
         // log output to file ./logs/d-m-Y.log
         'log' => false,
@@ -145,10 +145,10 @@ class Runner
                 if (!empty($this->config['debug'])) {
                     $this->console->out(
                         " - Finished Iteration.\n".
-                        " - Took: ".(microtime(true) - $loopStart)." seconds.\n".
+                        " - Took: ".number_format((microtime(true) - $loopStart), 3)." seconds.\n".
                         " - Sleeping for ".((int) $sleep_time)." seconds.\n".
-                        " - Stops in: ".($stopTime-(microtime(true)+(microtime(true) - $loopStart)))." seconds.\n".
-                        " - Total running time ".(microtime(true) - $this->constructBootTime)." seconds."
+                        " - Stops in: ".number_format(($stopTime-(microtime(true)+(microtime(true) - $loopStart))), 3)." seconds.\n".
+                        " - Total running time ".number_format((microtime(true) - $this->constructBootTime), 3)." seconds."
                     );
                 }
                 
@@ -165,6 +165,7 @@ class Runner
                     break;
                 }
 
+                //
                 if (!empty($this->config['debug'])) {
                     $i++;
                 }
