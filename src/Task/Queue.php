@@ -55,11 +55,9 @@ namespace Plinker\Tasks\Task {
                     //
                     if (!empty($this->task->config['debug'])) {
                         $this->task->console->out(
-                            '<light_green><bold>Running: '.$task->name.' - '.$task->params.'</bold></light_green>'
+                            '<light_green><bold>Running: '.$task->name/*.' - '.$task->params*/.'</bold></light_green>'
                         );
                     }
-
-                    $error = false;
 
                     // check has got source
                     if (!empty($task->tasksource_id)) {
@@ -86,18 +84,18 @@ namespace Plinker\Tasks\Task {
                             eval('?>'.$source);
                             $task->result = ob_get_clean();
                         } elseif ($task->tasksource->type == 'bash') {
-                            if (!file_exists('../tmp/')) {
-                                mkdir('../tmp/', 0755, true);
-                            }
-                            file_put_contents('../tmp/'.md5($task->tasksource->name).'.sh', $task->tasksource->source);
+                            $filename = (!empty($this->task->config['tmp_path']) ? $this->task->config['tmp_path'] : './.plinker').'/bash/'.md5($task->tasksource->name).'.sh';
+                            file_put_contents($filename, $task->tasksource->source);
                             ob_start();
-                            echo shell_exec('/bin/bash ../tmp/'.md5($task->tasksource->name).'.sh');
+                            echo shell_exec('/bin/bash '.$filename);
                             $task->result = ob_get_clean();
                         }
                         
+                        /*
                         if (!empty($this->task->config['debug'])) {
                             print_r($task->result);
                         }
+                        */
 
                         $this->store($task);
                     } else {

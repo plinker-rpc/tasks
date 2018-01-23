@@ -35,7 +35,7 @@ class Runner
         
         // daemon sleep time
         'sleep_time' => 1,
-        'pid_path' => './pids'
+        'tmp_path'   => './.plinker'
     ])
     {
         $this->config = $config;
@@ -92,8 +92,15 @@ class Runner
     public function daemon($class, $config = [])
     {
         $this->config = (array) $config + (array) $this->config;
+        
+        // check tmp path exists
+        if (!file_exists((!empty($this->config['tmp_path']) ? $this->config['tmp_path'] : './.plinker'))) {
+            mkdir((!empty($this->config['tmp_path']) ? $this->config['tmp_path'] : './.plinker'), 0755, true);
+            file_put_contents((!empty($this->config['tmp_path']) ? $this->config['tmp_path'] : './.plinker/.htaccess'), 'deny from all');
+        }
 
-        $pid = new Lib\PID((!empty($this->config['pid_path']) ? $this->config['pid_path'] : './pids'), $class);
+        // init pid/lock file
+        $pid = new Lib\PID((!empty($this->config['tmp_path']) ? $this->config['tmp_path'] : './.plinker'), $class);
 
         $sleep_time = !empty($this->config['sleep_time']) ? $this->config['sleep_time'] : 1;
 

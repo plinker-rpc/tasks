@@ -50,7 +50,7 @@ You should create a file which will be run via cron, for example:
             
         // daemon sleep time
         'sleep_time' => 1,
-        'pid_path'   => './pids'
+        'tmp_path'   => './.plinker'
     ]);
     
     // $task->run('Test');
@@ -95,7 +95,7 @@ Making a remote call.
     
     	// daemon sleep time
     	'sleep_time' => 1,
-    	'pid_path'   => './pids'
+    	'tmp_path'   => './.plinker'
     ];
     
     // init plinker client

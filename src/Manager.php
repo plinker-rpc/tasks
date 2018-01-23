@@ -342,9 +342,10 @@ namespace Plinker\Tasks {
                 eval('?>'.$tasksource->source);
                 return ob_get_clean().$return;
             } elseif ($tasksource->type == 'bash') {
-                file_put_contents('tmp/'.md5($task->tasksource->name).'.sh', $task->tasksource->source);
+                $filename = (!empty($this->config['tmp_path']) ? $this->config['tmp_path'] : './.plinker').'/bash/'.md5($task->tasksource->name).'.sh';
+                file_put_contents($filename, $task->tasksource->source);
                 ob_start();
-                echo shell_exec('/bin/bash tmp/'.md5($task->tasksource->name).'.sh');
+                echo shell_exec('/bin/bash '.$filename);
                 return ob_get_clean();
             }
 
@@ -376,49 +377,6 @@ namespace Plinker\Tasks {
          */
         public function files(array $params = array())
         {
-
-            // // This function scans the files folder recursively, and builds a large array
-            // $scan = function ($dir, $initial) use ( &$scan ) {
-            //     $files = array();
-            //     // Is there actually such a folder/file
-            //     if (file_exists($dir)) {
-            //         $files[str_replace($initial, '/', $dir)][] = array(
-            //             "name" => '..',
-            //             "type" => "folder",
-            //         );
-
-            //         foreach(scandir($dir) as $f) {
-
-            //             if(!$f || $f[0] == '.') {
-            //                 continue;
-            //             }
-
-            //             if (is_dir($dir . '/' . $f)) {
-            //                 // The path is a folder
-            //                 $files[str_replace($initial, '/', $dir . '/' . $f)][] = array(
-            //                     "name" => $f,
-            //                     "type" => "folder",
-            //                     //"path" => $dir . '/' . $f,
-            //                     //"size" => filesize($dir . '/' . $f) // Gets the size of this file
-            //                 );
-            //                 $files[str_replace($initial, '/', $dir . '/' . $f)] = $scan($dir . '/' . $f, $initial);
-            //             }
-            //             else {
-            //                 // It is a file
-            //                 $files[str_replace($initial, '/', $dir )][] = array(
-            //                     "name" => $f,
-            //                     "type" => "file",
-            //                     //"path" => $dir . '/' . $f,
-            //                     //"size" => filesize($dir . '/' . $f) // Gets the size of this file
-            //                 );
-            //             }
-            //         }
-
-            //     }
-
-            //     return $files;
-            // };
-
             $dir = $params[0];
 
             // Create recursive dir iterator which skips dot folders
@@ -454,12 +412,7 @@ namespace Plinker\Tasks {
                 }
             }
 
-            // Run the recursive function
-
-            //$response = $scan($dir, $dir);
-
             // Output the directory listing as JSON
-
             header('Content-type: application/json');
 
             return json_encode($return, JSON_NUMERIC_CHECK);
