@@ -29,7 +29,7 @@ namespace Plinker\Tasks\Task {
         public function execute()
         {
             // create composer update task
-            if ($this->count(['tasks', 'name = "tasks.composer_update"']) == 0) {
+            if ($this->count('tasks', 'name = "tasks.composer_update"') == 0) {
                 $this->tasks = new \Plinker\Tasks\Manager($this->task->config);
                 // add
                 $task['tasks.composer_update'] = $this->tasks->create([
