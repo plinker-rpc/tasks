@@ -97,6 +97,7 @@ class Runner
         if (!file_exists((!empty($this->config['tmp_path']) ? $this->config['tmp_path'] : './.plinker'))) {
             mkdir((!empty($this->config['tmp_path']) ? $this->config['tmp_path'] : './.plinker'), 0755, true);
             file_put_contents((!empty($this->config['tmp_path']) ? $this->config['tmp_path'] : './.plinker/.htaccess'), 'deny from all');
+            chown((!empty($this->config['tmp_path']) ? $this->config['tmp_path'] : './.plinker'), 'www-data');
         }
 
         // init pid/lock file
