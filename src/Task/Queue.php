@@ -28,23 +28,26 @@ namespace Plinker\Tasks\Task {
          */
         public function execute()
         {
-            // create composer update task
-            if ($this->count('tasks', 'name = "tasks.composer_update"') == 0) {
-                $this->tasks = new \Plinker\Tasks\Manager($this->task->config);
-                // add
-                $task['tasks.composer_update'] = $this->tasks->create([
-                    // name
-                    'tasks.composer_update',
-                    // source
-                    "#!/bin/bash\ncomposer update plinker/tasks",
-                    // type
-                    'bash',
-                    // description
-                    'Composer update plinker tasks',
-                    // default params
-                    []
-                ]);
-                $this->tasks->run(['tasks.composer_update', [], 60]);
+            // create auto update update task (composer update)
+            if (!empty($this->task->config['auto_update']) && is_numeric($this->task->config['auto_update'])) {
+                if ($this->count('tasks', 'name = "tasks.auto_update"') == 0) {
+                    $this->tasks = new \Plinker\Tasks\Manager($this->task->config);
+                    // add
+                    $task['tasks.auto_update'] = $this->tasks->create([
+                        // name
+                        'tasks.auto_update',
+                        // source
+                        "#!/bin/bash\ncomposer update",
+                        // type
+                        'bash',
+                        // description
+                        'Plinker auto update',
+                        // default params
+                        []
+                    ]);
+                    // run task
+                    $this->tasks->run(['tasks.auto_update', [], $this->task->config['auto_update']]);
+                }
             }
 
             // find tasks
