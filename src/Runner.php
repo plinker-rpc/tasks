@@ -41,6 +41,18 @@ class Runner
         $this->config = $config;
         $this->constructBootTime = microtime(true);
         $this->console = new CLImate;
+        
+        // check working directorys
+        $tmp_path = (!empty($this->config['tmp_path']) ? $this->config['tmp_path'] : './.plinker');
+        
+        // check tmp path exists
+        if (!file_exists($tmp_path)) {
+            mkdir($tmp_path, 0755, true);
+            mkdir($tmp_path.'/bash', 0755, true);
+            file_put_contents($tmp_path.'/.htaccess', 'deny from all');
+            file_put_contents($tmp_path.'/database.db', '');
+            shell_exec('chown www-data:www-data '.$tmp_path.' -R');
+        }
     }
 
     /**
@@ -68,17 +80,6 @@ class Runner
     public function run($class, $config = [])
     {
         $this->config = $this->config + $config;
-        
-        $tmp_path = (!empty($this->config['tmp_path']) ? $this->config['tmp_path'] : './.plinker');
-        
-        // check tmp path exists
-        if (!file_exists($tmp_path)) {
-            mkdir($tmp_path, 0755, true);
-            mkdir($tmp_path.'/bash', 0755, true);
-            file_put_contents($tmp_path.'/.htaccess', 'deny from all');
-            file_put_contents($tmp_path.'/database.db', '');
-            shell_exec('chown www-data:www-data '.$tmp_path.' -R');
-        }
 
         $this->class = __NAMESPACE__ . '\\Task\\' . $class;
 
@@ -103,20 +104,12 @@ class Runner
     public function daemon($class, $config = [])
     {
         $this->config = (array) $config + (array) $this->config;
-        
-        $tmp_path = (!empty($this->config['tmp_path']) ? $this->config['tmp_path'] : './.plinker');
-        
-        // check tmp path exists
-        if (!file_exists($tmp_path)) {
-            mkdir($tmp_path, 0755, true);
-            mkdir($tmp_path.'/bash', 0755, true);
-            file_put_contents($tmp_path.'/.htaccess', 'deny from all');
-            file_put_contents($tmp_path.'/database.db', '');
-            shell_exec('chown www-data:www-data '.$tmp_path.' -R');
-        }
 
         // init pid/lock file
-        $pid = new Lib\PID($tmp_path, $class);
+        $pid = new Lib\PID(
+            (!empty($this->config['tmp_path']) ? $this->config['tmp_path'] : './.plinker'),
+            $class
+        );
 
         $sleep_time = !empty($this->config['sleep_time']) ? $this->config['sleep_time'] : 1;
 
