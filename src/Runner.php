@@ -18,7 +18,7 @@ class Runner
     public function __construct($config = [
         // database connection
         'database' => [
-            'dsn'      => 'sqlite:./database.db',
+            'dsn'      => 'sqlite:./.plinker/database.db',
             'host'     => '',
             'name'     => '',
             'username' => '',

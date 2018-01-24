@@ -36,7 +36,7 @@ You should create a file which will be run via cron, for example:
     $task = new Plinker\Tasks\Runner([
         // database connection
         'database' => [
-            'dsn'      => 'sqlite:./database.db',
+            'dsn'      => 'sqlite:./.plinker/database.db',
             'host'     => '',
             'name'     => '',
             'username' => '',
@@ -81,7 +81,7 @@ Making a remote call.
     	
     	// database connection
     	'database' => [
-    		'dsn'      => 'sqlite:./database.db',
+    		'dsn'      => 'sqlite:./.plinker/database.db',
     		'host'     => '',
     		'name'     => '',
     		'username' => '',
