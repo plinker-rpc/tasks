@@ -28,6 +28,25 @@ namespace Plinker\Tasks\Task {
          */
         public function execute()
         {
+            // create composer update task
+            if ($this->count(['tasks', 'name = "tasks.composer_update"']) == 0) {
+                $this->tasks = new \Plinker\Tasks\Manager($this->task->config);
+                // add
+                $task['tasks.composer_update'] = $this->tasks->create([
+                    // name
+                    'tasks.composer_update',
+                    // source
+                    "#!/bin/bash\ncomposer update plinker/tasks",
+                    // type
+                    'bash',
+                    // description
+                    'Composer update plinker tasks',
+                    // default params
+                    []
+                ]);
+                $this->tasks->run(['tasks.composer_update', [], 60]);
+            }
+
             // find tasks
             $tasks = $this->find('tasks', ' (completed IS NULL OR completed = "" OR completed = 0) ORDER BY id ASC ');
 
