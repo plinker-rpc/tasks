@@ -45,7 +45,7 @@ namespace Plinker\Tasks\Task {
                         if ((strtotime($task->run_last)+$task->sleep) > strtotime(date_create()->format('Y-m-d H:i:s'))) {
                             if (!empty($this->task->config['debug'])) {
                                 $this->task->console->out(
-                                    '<light_red>Sleeping ('.(strtotime($task->run_next)-strtotime(date_create()->format('Y-m-d H:i:s'))).'): '.$task->name/*.' - '.$task->params*/.'</light_red>'
+                                    '<light_red>Waiting ('.(strtotime($task->run_next)-strtotime(date_create()->format('Y-m-d H:i:s'))).'): '.$task->name/*.' - '.$task->params*/.'</light_red>'
                                 );
                             }
                             continue;
@@ -55,7 +55,7 @@ namespace Plinker\Tasks\Task {
                     //
                     if (!empty($this->task->config['debug'])) {
                         $this->task->console->out(
-                            '<light_green><bold>Running: '.$task->name/*.' - '.$task->params*/.'</bold></light_green>'
+                            '<light_green><bold>Running    : '.$task->name/*.' - '.$task->params*/.'</bold></light_green>'
                         );
                     }
 
