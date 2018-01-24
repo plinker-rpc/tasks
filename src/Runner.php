@@ -74,6 +74,7 @@ class Runner
         // check tmp path exists
         if (!file_exists($tmp_path)) {
             mkdir($tmp_path, 0755, true);
+            mkdir($tmp_path.'/bash', 0755, true);
             file_put_contents($tmp_path.'/.htaccess', 'deny from all');
             file_put_contents($tmp_path.'/database.db', '');
             shell_exec('chown www-data:www-data '.$tmp_path.' -R');
@@ -108,6 +109,7 @@ class Runner
         // check tmp path exists
         if (!file_exists($tmp_path)) {
             mkdir($tmp_path, 0755, true);
+            mkdir($tmp_path.'/bash', 0755, true);
             file_put_contents($tmp_path.'/.htaccess', 'deny from all');
             file_put_contents($tmp_path.'/database.db', '');
             shell_exec('chown www-data:www-data '.$tmp_path.' -R');

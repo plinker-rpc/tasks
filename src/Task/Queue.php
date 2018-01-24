@@ -74,7 +74,7 @@ namespace Plinker\Tasks\Task {
                     //
                     if (!empty($this->task->config['debug'])) {
                         $this->task->console->out(
-                            '<light_green><bold>Running ---: '.$task->name/*.' - '.$task->params*/.'</bold></light_green>'
+                            '<light_green><bold>Running    : '.$task->name/*.' - '.$task->params*/.'</bold></light_green>'
                         );
                     }
 
