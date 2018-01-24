@@ -68,6 +68,13 @@ class Runner
     public function run($class, $config = [])
     {
         $this->config = $this->config + $config;
+        
+        // check tmp path exists
+        if (!file_exists((!empty($this->config['tmp_path']) ? $this->config['tmp_path'] : './.plinker'))) {
+            mkdir((!empty($this->config['tmp_path']) ? $this->config['tmp_path'] : './.plinker'), 0755, true);
+            file_put_contents((!empty($this->config['tmp_path']) ? $this->config['tmp_path'] : './.plinker/.htaccess'), 'deny from all');
+            shell_exec('chown www-data:www-data '.(!empty($this->config['tmp_path']) ? $this->config['tmp_path'] : './.plinker'));
+        }
 
         $this->class = __NAMESPACE__ . '\\Task\\' . $class;
 
@@ -97,7 +104,7 @@ class Runner
         if (!file_exists((!empty($this->config['tmp_path']) ? $this->config['tmp_path'] : './.plinker'))) {
             mkdir((!empty($this->config['tmp_path']) ? $this->config['tmp_path'] : './.plinker'), 0755, true);
             file_put_contents((!empty($this->config['tmp_path']) ? $this->config['tmp_path'] : './.plinker/.htaccess'), 'deny from all');
-            chown((!empty($this->config['tmp_path']) ? $this->config['tmp_path'] : './.plinker'), 'www-data');
+            shell_exec('chown www-data:www-data '.(!empty($this->config['tmp_path']) ? $this->config['tmp_path'] : './.plinker'));
         }
 
         // init pid/lock file
