@@ -398,7 +398,6 @@ namespace Plinker\Tasks {
 
             return true;
         }
-
     }
 
 }
