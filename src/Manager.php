@@ -407,7 +407,7 @@ namespace Plinker\Tasks {
             $dir = $params[0];
             
             if (!file_exists($dir) || !is_dir($dir) || !is_readable($dir)) {
-                return new \Exception('Folder does not exist or is not readable.');
+                return 'Folder does not exist or is not readable.';
             }
 
             // Create recursive dir iterator which skips dot folders
@@ -443,10 +443,7 @@ namespace Plinker\Tasks {
                 }
             }
 
-            // Output the directory listing as JSON
-            header('Content-type: application/json');
-
-            return json_encode($return, JSON_NUMERIC_CHECK);
+            return $return;
         }
 
         public function getFile(array $params = array())
