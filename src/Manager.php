@@ -469,7 +469,7 @@ namespace Plinker\Tasks {
 
         public function saveFile(array $params = array())
         {
-            if (file_exists($params[0])) {
+            if (file_exists($params[0]) || is_writable(dirname($params[0]))) {
                 file_put_contents($params[0], base64_decode(@$params[1]));
                 return base64_encode(true);
             } else {
