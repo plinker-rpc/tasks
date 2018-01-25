@@ -205,6 +205,29 @@ namespace Plinker\Tasks {
         {
             return $this->model->load('tasksource', $params[0]);
         }
+        
+        /**
+         *
+         */
+        public function remove(array $params = array())
+        {
+            // get task
+            $row = $this->model->findOne('tasksource', 'name = ?', [$params[0]]);
+            
+            if (empty($row->id)) {
+                return 'not found';
+            }
+
+            // remove all tasks
+            foreach ($row->ownTasks as $tasks) {
+                $this->model->trash($tasks);
+            }
+
+            // remove task
+            $this->model->trash($row);
+
+            return true;
+        }
 
         /**
          *
@@ -213,6 +236,10 @@ namespace Plinker\Tasks {
         {
             // get task
             $row = $this->model->load('tasksource', $params[0]);
+            
+            if (empty($row->id)) {
+                return 'not found';
+            }
 
             // remove all tasks
             foreach ($row->ownTasks as $tasks) {
@@ -230,8 +257,8 @@ namespace Plinker\Tasks {
          */
         public function getTaskSources(array $params = array())
         {
-            // get task
-            return $this->model->findAll('tasksource', 'LIMIT 1');
+            // tasks
+            return $this->model->findAll('tasksource');
         }
 
         /**
@@ -378,6 +405,10 @@ namespace Plinker\Tasks {
         public function files(array $params = array())
         {
             $dir = $params[0];
+            
+            if (!file_exists($dir) || !is_dir($dir) || !is_readable($dir)) {
+                return new \Exception('Folder does not exist or is not readable.');
+            }
 
             // Create recursive dir iterator which skips dot folders
             $dir = new \RecursiveDirectoryIterator(
