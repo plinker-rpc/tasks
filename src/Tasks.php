@@ -4,7 +4,7 @@ namespace Plinker\Tasks {
     use Plinker\Tasks\Lib;
     use Opis\Closure\SerializableClosure;
 
-    class Manager
+    class Tasks
     {
         public $config = array();
 
