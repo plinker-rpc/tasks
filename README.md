@@ -1,36 +1,24 @@
-**Plinker-RPC - Tasks**
-=========
-
-PlinkerRPC PHP client/server makes it really easy to link and execute PHP component classes on remote systems, while maintaining the feel of a local method call.
+# PlinkerRPC - Tasks
 
 The tasks component allows you to write code based tasks which are completed by a daemon, 
 this could allow you to create a single interface to control a cluster of servers tasks.
 
-Want to see an example project? Check out [PlinkerUI](https://github.com/lcherone/PlinkerUI).
+## Install
 
-**Composer**
+Require this package with composer using the following command:
 
-    {
-    	"require": {
-    		"plinker/core": ">=v0.1",
-    		"plinker/tasks": ">=v0.1"
-    	}
-    }
+``` bash
+$ composer require plinker/tasks
+```
 
-[Example source](https://github.com/plinker-rpc/development/tree/master/examples/tasks)
+## CRON Daemon
 
-You should create a file which will be run via cron, for example:
+You should create a file which will be run via cron:
 
 **cron.php**
 
     <?php
-    require '../../vendor/autoload.php';
-    
-    /*
-     * The cron job
-     *
-     * @reboot while sleep 1; do cd /var/www/html/examples/tasks && /usr/bin/php run.php ; done
-     */
+    require 'vendor/autoload.php';
 
     if (php_sapi_name() != 'cli') {
         header('HTTP/1.0 403 Forbidden');
@@ -55,73 +43,72 @@ You should create a file which will be run via cron, for example:
     ]);
     
     $task->daemon('Queue');
+    
+Then add a cron job:
+
+ - `@reboot while sleep 1; do cd /var/www/html/examples/tasks && /usr/bin/php run.php ; done`
 
 
+## Client
 
-
-Making a remote call.
---------------------
+Creating a client instance is done as follows:
 
 
     <?php
-    require '../../vendor/autoload.php';
-    
+    require 'vendor/autoload.php';
+
     /**
-     * Plinker Config
+     * Initialize plinker client.
+     *
+     * @param string $server - URL to server listener.
+     * @param string $config - server secret, and/or a additional component data
      */
-    $config = [
-        // plinker connection
-    	'plinker' => [
-    		'endpoint' => 'http://127.0.0.1/examples/tasks/server.php',
-    		'public_key'  => 'makeSomethingUp',
-    		'private_key' => 'againMakeSomethingUp'
-    	],
-    	
-    	// database connection
-    	'database' => [
-    		'dsn'      => 'sqlite:./.plinker/database.db',
-    		'host'     => '',
-    		'name'     => '',
-    		'username' => '',
-    		'password' => '',
-    		'freeze'   => false,
-    		'debug'    => false,
-    	],
+    $client = plinker_client('http://example.com/server.php', 'a secret password', [
+        // database connection
+        'database' => [
+            'dsn'      => 'sqlite:./.plinker/database.db',
+            'host'     => '',
+            'name'     => '',
+            'username' => '',
+            'password' => '',
+            'freeze'   => false,
+            'debug'    => false,
+        ],
+        // displays output to task runner console
+        'debug' => true,
     
-    	// displays output to task runner console
-    	'debug' => true,
+        // daemon sleep time
+        'sleep_time' => 1,
+        'tmp_path'   => './.plinker'
+    ]);
     
-    	// daemon sleep time
-    	'sleep_time' => 1,
-    	'tmp_path'   => './.plinker'
-    ];
+    // or using global function
+    $client = plinker_client('http://example.com/server.php', 'a secret password', [
+        // database connection
+        'database' => [
+            'dsn'      => 'sqlite:./.plinker/database.db',
+            'host'     => '',
+            'name'     => '',
+            'username' => '',
+            'password' => '',
+            'freeze'   => false,
+            'debug'    => false,
+        ],
+        // displays output to task runner console
+        'debug' => true,
     
-    // init plinker client
-    $tasks = new \Plinker\Core\Client(
-    	// where is the plinker server
-    	$config['plinker']['endpoint'],
+        // daemon sleep time
+        'sleep_time' => 1,
+        'tmp_path'   => './.plinker'
+    ]);
     
-    	// component namespace to interface to
-    	'Tasks\Manager',
-    
-    	// keys
-    	hash('sha256', gmdate('h').$config['plinker']['public_key']),
-    	hash('sha256', gmdate('h').$config['plinker']['private_key']),
-    
-    	// construct values which you pass to the component, which the component
-    	//  will use, for RedbeanPHP component you would send the database connection
-    	//  dont worry its AES encrypted. see: encryption-proof.txt
-    	$config
-    );
-    
-    /**
-     * Example
-     */
-    
+
+## Example
+
     // create the task
     try {
     	// create task
-    	$tasks->create(
+    	$client->tasks->create(
     		// name
     		'Hello World',
     		// source
@@ -142,60 +129,81 @@ Making a remote call.
     }
     
     //run task now - executed as apache user
-    //print_r($tasks->runNow('Hello World'));
+    $client->tasks->runNow('Hello World');
     
-    // place task in queue to run
-    print_r($tasks->run('Hello World', [1], 5));
+    // place task in queue to run every 5 seconds
+    $client->tasks->run('Hello World', [1], 5);
     
     // get task status
-    print_r($tasks->status('Hello World'));
+    $client->tasks->status('Hello World');
     
     // get task run count
-    print_r($tasks->runCount('Hello World'));
+    $client->tasks->runCount('Hello World');
     
     // clear all tasks
-    //$tasks->clear();
-
-
-**then the server part...**
-
-
-    <?php
-    require '../../vendor/autoload.php';
+    $client->tasks->clear();
     
-    /**
-     * Plinker Server
-     */
-    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    
-        /**
-         * Plinker Config
-         */
-        $plinker = [
-            'public_key'  => 'makeSomethingUp',
-            'private_key' => 'againMakeSomethingUp'
-        ];
-    
-        /**
-         * Plinker server listener
-         */
-        if (isset($_POST['data']) &&
-            isset($_POST['token']) &&
-            isset($_POST['public_key'])
-        ) {
-            // test its encrypted
-            file_put_contents('./.plinker/encryption-proof.txt', print_r($_POST, true));
-    
-            //
-            $server = new \Plinker\Core\Server(
-                $_POST,
-                hash('sha256', gmdate('h').$plinker['public_key']),
-                hash('sha256', gmdate('h').$plinker['private_key'])
-            );
-    
-            exit($server->execute());
-        }
-    }
+
+## Methods
+
+Once setup, you call the class though its namespace to its method.
+
+### List
+
+....
+
+| Parameter   | Type           | Description   | Default        |
+| ----------  | -------------  | ------------- |  ------------- | 
+| dir         | string         | Base path to list files and folders from | `./` |
+| extended    | bool           | Return extended fileinfo | `false` |
+| depth       | int            | Iterator depth | `10` |
 
 
-See the [organisations page](https://github.com/plinker-rpc) for additional components and examples.
+**Call**
+``` php
+$result = $client->files->list('./', false, 10);
+```
+
+**Response**
+``` text
+
+```
+
+## Testing
+
+There are no tests setup for this component.
+
+## Contributing
+
+Please see [CONTRIBUTING](https://github.com/plinker-rpc/files/blob/master/CONTRIBUTING) for details.
+
+## Security
+
+If you discover any security related issues, please contact me via [https://cherone.co.uk](https://cherone.co.uk) instead of using the issue tracker.
+
+## Credits
+
+- [Lawrence Cherone](https://github.com/lcherone)
+- [All Contributors](https://github.com/plinker-rpc/files/graphs/contributors)
+
+## Links
+
+Want to see an example project which uses this component?
+
+ - [PlinkerUI](https://github.com/lcherone/PlinkerUI)
+
+
+## Development Encouragement
+
+If you use this project and make money from it or want to show your appreciation,
+please feel free to make a donation [https://www.paypal.me/lcherone](https://www.paypal.me/lcherone), thanks.
+
+## Sponsors
+
+Get your company or name listed throughout the documentation and on each github repository, contact me at [https://cherone.co.uk](https://cherone.co.uk) for further details.
+
+## License
+
+The MIT License (MIT). Please see [License File](https://github.com/plinker-rpc/files/blob/master/LICENSE) for more information.
+
+See the [organisations page](https://github.com/plinker-rpc) for additional components.
