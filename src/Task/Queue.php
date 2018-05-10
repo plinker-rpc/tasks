@@ -31,7 +31,7 @@ namespace Plinker\Tasks\Task {
             // create auto update update task (composer update)
             if (!empty($this->task->config['auto_update']) && is_numeric($this->task->config['auto_update'])) {
                 if ($this->count('tasks', 'name = "tasks.auto_update"') == 0) {
-                    $this->tasks = new \Plinker\Tasks\Manager($this->task->config);
+                    $this->tasks = new \Plinker\Tasks\Tasks($this->task->config);
                     // add
                     $task['tasks.auto_update'] = $this->tasks->create([
                         // name
@@ -130,7 +130,7 @@ namespace Plinker\Tasks\Task {
                     }
                 }
             } catch (\Exception $e) {
-                //
+                // ...
             }
         }
     }
