@@ -335,12 +335,6 @@ namespace Plinker\Tasks {
             // get task source id
             $task->tasksource = $this->model->findOne('tasksource', 'name = ?', [$name]);
 
-            if (empty($task->completed) && empty($task->result)) {
-                // store task
-                $this->model->store($task);
-                return [];
-            }
-
             // store task
             $this->model->store($task);
 

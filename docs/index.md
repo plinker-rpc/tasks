@@ -103,70 +103,663 @@ Creating a client instance is done as follows:
     ]);
     
 
-## Example
-
-    // create the task
-    try {
-    	// create task
-    	$client->tasks->create(
-    		// name
-    		'Hello World',
-    		// source
-    		'<?php echo "Hello World";',
-    		// type
-    		'php',
-    		// description
-    		'...',
-    		// default params
-    		[]
-    	);
-    } catch (\Exception $e) {
-    	if ($e->getMessage() == 'Unauthorised') {
-    		echo 'Error: Connected successfully but could not authenticate! Check public and private keys.';
-    	} else {
-    		echo 'Error:'.str_replace('Could not unserialize response:', '', trim(htmlentities($e->getMessage())));
-    	}
-    }
-    
-    //run task now - executed as apache user
-    $client->tasks->runNow('Hello World');
-    
-    // place task in queue to run every 5 seconds
-    $client->tasks->run('Hello World', [1], 5);
-    
-    // get task status
-    $client->tasks->status('Hello World');
-    
-    // get task run count
-    $client->tasks->runCount('Hello World');
-    
-    // clear all tasks
-    $client->tasks->clear();
-    
-
 ## Methods
 
 Once setup, you call the class though its namespace to its method.
 
-### List
+### Create
 
-....
+Create a new task, tasks with the same name will be overwritten.
 
-| Parameter   | Type           | Description   | Default        |
-| ----------  | -------------  | ------------- |  ------------- | 
-| dir         | string         | Base path to list files and folders from | `./` |
-| extended    | bool           | Return extended fileinfo | `false` |
-| depth       | int            | Iterator depth | `10` |
+| Parameter   | Type           | Description   | Default         |
+| ----------  | -------------  | ------------- |  -------------- | 
+| name        | string         | Name of task  |                 |
+| source      | string         | Task source code |              |
+| type        | string         | Type of task (php|bash) |       |
+| description | string         | Description of task |           |
+| params      | array          | Default params passed to task | |
 
 
 **Call**
 ``` php
-$result = $client->files->list('./', false, 10);
+$client->tasks->create(
+    'Hello World',
+    '<?php echo "Hello World";',
+    'php',
+    'My Hello World task',
+    []
+)
 ```
 
 **Response**
 ``` text
+Array
+(
+    [id] => 1
+    [name] => Hello World
+    [source] =>  cda22aa1e43992c1103a9f8a386b5dcb
+    [type] => php
+    [description] => My Hello World task
+    [params] => 
+    [updated] => 2018-01-01 00:00:00
+    [created] => 2018-01-01 00:00:00
+)
+```
 
+### Update
+
+Update a task.
+
+| Parameter   | Type           | Description   | Default         |
+| ----------  | -------------  | ------------- |  -------------- | 
+| id          | int            | Id of task    |                 |
+| name        | string         | Name of task  |                 |
+| source      | string         | Task source code |              |
+| type        | string         | Type of task (php|bash) |       |
+| description | string         | Description of task |           |
+| params      | array          | Default params passed to task | |
+
+
+**Call**
+``` php
+$client->tasks->update(
+    1
+    'Hello World',
+    '<?php echo "Hello World - Updated";',
+    'php',
+    'My Hello World task',
+    []
+)
+```
+
+**Response**
+``` text
+Array
+(
+    [id] => 1
+    [name] => Hello World - Updated
+    [source] =>  cda22aa1e43992c1103a9f8a386b5dcb
+    [type] => php
+    [description] => My Hello World task
+    [params] => 
+    [updated] => 2018-01-01 00:00:00
+    [created] => 2018-01-01 00:00:00
+)
+```
+
+### Get
+
+Get task
+
+| Parameter   | Type           | Description   | Default         |
+| ----------  | -------------  | ------------- |  -------------- | 
+| name        | string         | Name of task  |                 |
+
+**Call**
+``` php
+$client->tasks->get('Hello World');
+```
+
+**Response (RedBean Object)**
+``` text
+RedBeanPHP\OODBBean Object
+(
+    [properties:protected] => Array
+        (
+            [id] => 1
+            [name] => Hello World
+            [source] =>  cda22aa1e43992c1103a9f8a386b5dcb
+            [type] => php
+            [description] => My Hello World task
+            [params] => 
+            [updated] => 2018-01-01 00:00:00
+            [created] => 2018-01-01 00:00:00
+        )
+
+    [__info:protected] => Array
+        (
+            [type] => tasksource
+            [sys.id] => id
+            [sys.orig] => Array
+                (
+                    [id] => 1
+                    [name] => Hello World
+                    [source] =>  cda22aa1e43992c1103a9f8a386b5dcb
+                    [type] => php
+                    [description] => My Hello World task
+                    [params] => 
+                    [updated] => 2018-01-01 00:00:00
+                    [created] => 2018-01-01 00:00:00
+                )
+
+            [tainted] => 
+            [changed] => 
+            [changelist] => Array
+                (
+                )
+
+            [model] => 
+        )
+
+    [beanHelper:protected] => RedBeanPHP\BeanHelper\SimpleFacadeBeanHelper Object
+        (
+        )
+
+    [fetchType:protected] => 
+    [withSql:protected] => 
+    [withParams:protected] => Array
+        (
+        )
+
+    [aliasName:protected] => 
+    [via:protected] => 
+    [noLoad:protected] => 
+    [all:protected] => 
+)
+```
+
+### Get By Id
+
+Get task
+
+| Parameter   | Type           | Description   | Default         |
+| ----------  | -------------  | ------------- |  -------------- | 
+| id          | int            | Id of task    |                 |
+
+**Call**
+``` php
+$client->tasks->getById(1);
+```
+
+**Response (RedBean Object)**
+``` text
+RedBeanPHP\OODBBean Object
+(
+    [properties:protected] => Array
+        (
+            [id] => 1
+            [name] => Hello World
+            [source] =>  cda22aa1e43992c1103a9f8a386b5dcb
+            [type] => php
+            [description] => My Hello World task
+            [params] => 
+            [updated] => 2018-01-01 00:00:00
+            [created] => 2018-01-01 00:00:00
+        )
+
+    [__info:protected] => Array
+        (
+            [type] => tasksource
+            [sys.id] => id
+            [sys.orig] => Array
+                (
+                    [id] => 1
+                    [name] => Hello World
+                    [source] =>  cda22aa1e43992c1103a9f8a386b5dcb
+                    [type] => php
+                    [description] => My Hello World task
+                    [params] => 
+                    [updated] => 2018-01-01 00:00:00
+                    [created] => 2018-01-01 00:00:00
+                )
+
+            [tainted] => 
+            [changed] => 
+            [changelist] => Array
+                (
+                )
+
+            [model] => 
+        )
+
+    [beanHelper:protected] => RedBeanPHP\BeanHelper\SimpleFacadeBeanHelper Object
+        (
+        )
+
+    [fetchType:protected] => 
+    [withSql:protected] => 
+    [withParams:protected] => Array
+        (
+        )
+
+    [aliasName:protected] => 
+    [via:protected] => 
+    [noLoad:protected] => 
+    [all:protected] => 
+)
+```
+
+### Get Task Sources
+
+Get all tasks.
+
+**Call**
+``` php
+$client->tasks->getTaskSources();
+```
+
+**Response (RedBean Object)**
+``` text
+Array
+(
+    [1] => RedBeanPHP\OODBBean Object
+        (
+            [properties:protected] => Array
+                (
+                    [id] => 1
+                    [name] => Hello World
+                    [source] =>  cda22aa1e43992c1103a9f8a386b5dcb
+                    [type] => php
+                    [description] => My Hello World task
+                    [params] => 
+                    [updated] => 2018-01-01 00:00:00
+                    [created] => 2018-01-01 00:00:00
+                )
+        
+            [__info:protected] => Array
+                (
+                    [type] => tasksource
+                    [sys.id] => id
+                    [sys.orig] => Array
+                        (
+                            [id] => 1
+                            [name] => Hello World
+                            [source] =>  cda22aa1e43992c1103a9f8a386b5dcb
+                            [type] => php
+                            [description] => My Hello World task
+                            [params] => 
+                            [updated] => 2018-01-01 00:00:00
+                            [created] => 2018-01-01 00:00:00
+                        )
+        
+                    [tainted] => 
+                    [changed] => 
+                    [changelist] => Array
+                        (
+                        )
+        
+                    [model] => 
+                )
+        
+            [beanHelper:protected] => RedBeanPHP\BeanHelper\SimpleFacadeBeanHelper Object
+                (
+                )
+        
+            [fetchType:protected] => 
+            [withSql:protected] => 
+            [withParams:protected] => Array
+                (
+                )
+        
+            [aliasName:protected] => 
+            [via:protected] => 
+            [noLoad:protected] => 
+            [all:protected] => 
+        )
+    )
+)
+```
+
+### Status
+
+Get the status of a task.
+
+| Parameter   | Type           | Description   | Default        |
+| ----------  | -------------  | ------------- |  ------------- | 
+| name        | string         | Name of task  | |
+
+**Call**
+``` php
+$client->tasks->status('Hello World');
+```
+
+**Response**
+``` text
+running
+```
+
+### Run Count
+
+Get the run count of a particular task.
+
+| Parameter   | Type           | Description   | Default        |
+| ----------  | -------------  | ------------- |  ------------- | 
+| name        | string         | Name of task  | |
+
+**Call**
+``` php
+$client->tasks->runCount('Hello World');
+```
+
+**Response**
+``` text
+100
+```
+
+### Remove
+
+Remove a task.
+
+| Parameter   | Type           | Description   | Default        |
+| ----------  | -------------  | ------------- |  ------------- | 
+| name        | string         | Name of task  | |
+
+**Call**
+``` php
+$client->tasks->remove('Hello World');
+```
+
+**Response**
+``` text
+true
+```
+
+### Remove By Id
+
+Remove a task by id.
+
+| Parameter   | Type           | Description   | Default        |
+| ----------  | -------------  | ------------- |  ------------- | 
+| id          | int            | Id of task    |                |
+
+**Call**
+``` php
+$client->tasks->removeById(1);
+```
+
+**Response**
+``` text
+true
+```
+
+### Get Tasks Log
+
+Task logs are entries created, when a task is run. Use this method to get the data.
+
+| Parameter   | Type           | Description   | Default        |
+| ----------  | -------------  | ------------- |  ------------- | 
+| tasksource_id | int          | The id of the task source (optional) |  |
+
+
+**Call**
+``` php
+$result = $client->tasks->getTasksLog();
+```
+
+**Response**
+``` text
+Array
+(
+    [1] => RedBeanPHP\OODBBean Object
+        (
+            [properties:protected] => Array
+                (
+                    [id] => 1
+                    [name] => Hello World
+                    [params] => []
+                    [repeats] => 1
+                    [completed] => 0
+                    [sleep] => 1
+                    [tasksource_id] => 1
+                    [run_last] => 2018-01-01 00:00:00
+                    [run_next] => 2018-01-01 00:00:00
+                    [run_count] => 6
+                    [result] => 
+                    [tasksource] => 
+                )
+
+            [__info:protected] => Array
+                (
+                    [type] => tasks
+                    [sys.id] => id
+                    [sys.orig] => Array
+                        (
+                            [id] => 1
+                            [name] => Hello World
+                            [params] => []
+                            [repeats] => 1
+                            [completed] => 0
+                            [sleep] => 1
+                            [tasksource_id] => 1
+                            [run_last] => 2018-01-01 00:00:00
+                            [run_next] => 2018-01-01 00:00:00
+                            [run_count] => 6
+                            [result] => 
+                            [tasksource] => 
+                        )
+
+                    [tainted] => 
+                    [changed] => 
+                    [changelist] => Array
+                        (
+                        )
+
+                    [model] => 
+                )
+
+            [beanHelper:protected] => RedBeanPHP\BeanHelper\SimpleFacadeBeanHelper Object
+                (
+                )
+
+            [fetchType:protected] => 
+            [withSql:protected] => 
+            [withParams:protected] => Array
+                (
+                )
+
+            [aliasName:protected] => 
+            [via:protected] => 
+            [noLoad:protected] => 
+            [all:protected] => 
+        )
+    )
+)
+```
+
+### Get Tasks Log Count
+
+Task logs are entries created, when a task is run. Use this method to get the counts.
+
+| Parameter   | Type           | Description   | Default        |
+| ----------  | -------------  | ------------- |  ------------- | 
+| tasksource_id | int          | The id of the task (optional) |  |
+
+
+**Call**
+``` php
+$result = $client->tasks->getTasksLogCount();
+```
+
+**Response**
+``` text
+1
+```
+
+### Remove Tasks Log
+
+Remove a task log from the task.
+
+| Parameter   | Type           | Description   | Default        |
+| ----------  | -------------  | ------------- |  ------------- | 
+| task_id     | int            | The id of the task |           |
+
+
+**Call**
+``` php
+$result = $client->tasks->removeTasksLog(1);
+```
+
+**Response**
+``` text
+true
+```
+
+### Get Tasks
+
+Task logs are entries created, when a task is run. Use this method to get the data.
+
+| Parameter   | Type           | Description   | Default        |
+| ----------  | -------------  | ------------- |  ------------- | 
+| task_id     | int            | The id of the task (optional) |  |
+
+
+**Call**
+``` php
+$result = $client->tasks->getTasks();
+```
+
+**Response**
+``` text
+Array
+(
+    [1] => RedBeanPHP\OODBBean Object
+        (
+            [properties:protected] => Array
+                (
+                    [id] => 1
+                    [name] => Hello World
+                    [params] => []
+                    [repeats] => 1
+                    [completed] => 0
+                    [sleep] => 1
+                    [tasksource_id] => 1
+                    [run_last] => 2018-01-01 00:00:00
+                    [run_next] => 2018-01-01 00:00:00
+                    [run_count] => 6
+                    [result] => 
+                    [tasksource] => 
+                )
+
+            [__info:protected] => Array
+                (
+                    [type] => tasks
+                    [sys.id] => id
+                    [sys.orig] => Array
+                        (
+                            [id] => 1
+                            [name] => Hello World
+                            [params] => []
+                            [repeats] => 1
+                            [completed] => 0
+                            [sleep] => 1
+                            [tasksource_id] => 1
+                            [run_last] => 2018-01-01 00:00:00
+                            [run_next] => 2018-01-01 00:00:00
+                            [run_count] => 6
+                            [result] => 
+                            [tasksource] => 
+                        )
+
+                    [tainted] => 
+                    [changed] => 
+                    [changelist] => Array
+                        (
+                        )
+
+                    [model] => 
+                )
+
+            [beanHelper:protected] => RedBeanPHP\BeanHelper\SimpleFacadeBeanHelper Object
+                (
+                )
+
+            [fetchType:protected] => 
+            [withSql:protected] => 
+            [withParams:protected] => Array
+                (
+                )
+
+            [aliasName:protected] => 
+            [via:protected] => 
+            [noLoad:protected] => 
+            [all:protected] => 
+        )
+    )
+)
+```
+
+### Run
+
+Place task entry in tasking table for deamon to run.
+
+| Parameter   | Type           | Description   | Default        |
+| ----------  | -------------  | ------------- |  ------------- | 
+| name        | string         | Name of the task | ``          |
+| params      | array          | Array of values which are passed to task | `` |
+| sleep       | int            | Sleep time between iterations, if 0 its run once | `0` |
+
+
+**Call**
+``` php
+// run once
+$client->tasks->run('Hello World', [], 0);
+
+// run every day
+$client->tasks->run('Hello World', [], 86400);
+```
+
+**Response**
+``` text
+Array
+(
+    [id] => 1
+    [name] => Hello World
+    [params] => []
+    [repeats] => 1
+    [completed] => 0
+    [sleep] => 86400
+    [tasksource_id] => 1
+    [run_last] => 2018-01-01 00:00:00
+    [run_next] => 2018-01-01 00:00:00
+    [run_count] => 10
+    [result] => Hello World
+)
+```
+
+### Run Now
+
+Run a task now (task is not placed in tasking table for deamon to run), and **run as the web server user**.
+
+| Parameter   | Type           | Description   | Default        |
+| ----------  | -------------  | ------------- |  ------------- | 
+| name        | string         | Name of the task | ``          |
+
+**Call**
+``` php
+$client->tasks->runNow('Hello World');
+```
+
+**Response**
+``` text
+Hello World
+```
+
+### Clear
+
+Delete all tasks
+
+**Call**
+``` php
+$result = $client->tasks->clear();
+```
+
+**Response**
+``` text
+true
+```
+
+### Reset
+
+Delete database. Use with caution.
+
+**Call**
+``` php
+$result = $client->tasks->reset();
+```
+
+**Response**
+``` text
+true
 ```
 
 ## Testing
