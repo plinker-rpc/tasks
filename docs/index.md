@@ -63,24 +63,28 @@ Creating a client instance is done as follows:
      * @param string $server - URL to server listener.
      * @param string $config - server secret, and/or a additional component data
      */
-    $client = plinker_client('http://example.com/server.php', 'a secret password', [
-        // database connection
-        'database' => [
-            'dsn'      => 'sqlite:./.plinker/database.db',
-            'host'     => '',
-            'name'     => '',
-            'username' => '',
-            'password' => '',
-            'freeze'   => false,
-            'debug'    => false,
-        ],
-        // displays output to task runner console
-        'debug' => true,
-    
-        // daemon sleep time
-        'sleep_time' => 1,
-        'tmp_path'   => './.plinker'
-    ]);
+    $client = new \Plinker\Core\Client(
+        'http://example.com/server.php',
+        [
+            'secret' => 'a secret password',
+            // database connection
+            'database' => [
+                'dsn'      => 'sqlite:./.plinker/database.db',
+                'host'     => '',
+                'name'     => '',
+                'username' => '',
+                'password' => '',
+                'freeze'   => false,
+                'debug'    => false,
+            ],
+            // displays output to task runner console
+            'debug' => true,
+        
+            // daemon sleep time
+            'sleep_time' => 1,
+            'tmp_path'   => './.plinker'
+        ]
+    );
     
     // or using global function
     $client = plinker_client('http://example.com/server.php', 'a secret password', [
@@ -115,7 +119,7 @@ Create a new task, tasks with the same name will be overwritten.
 | ----------  | -------------  | ------------- |  -------------- | 
 | name        | string         | Name of task  |                 |
 | source      | string         | Task source code |              |
-| type        | string         | Type of task (php|bash) |       |
+| type        | string         | Type of task (php\|bash) |       |
 | description | string         | Description of task |           |
 | params      | array          | Default params passed to task | |
 
@@ -155,7 +159,7 @@ Update a task.
 | id          | int            | Id of task    |                 |
 | name        | string         | Name of task  |                 |
 | source      | string         | Task source code |              |
-| type        | string         | Type of task (php|bash) |       |
+| type        | string         | Type of task (php\|bash) |       |
 | description | string         | Description of task |           |
 | params      | array          | Default params passed to task | |
 
@@ -189,7 +193,7 @@ Array
 
 ### Get
 
-Get task
+Get a task.
 
 | Parameter   | Type           | Description   | Default         |
 | ----------  | -------------  | ------------- |  -------------- | 
@@ -260,7 +264,7 @@ RedBeanPHP\OODBBean Object
 
 ### Get By Id
 
-Get task
+Get a task by id.
 
 | Parameter   | Type           | Description   | Default         |
 | ----------  | -------------  | ------------- |  -------------- | 
@@ -438,7 +442,7 @@ $client->tasks->runCount('Hello World');
 
 ### Remove
 
-Remove a task.
+Remove a task by its name.
 
 | Parameter   | Type           | Description   | Default        |
 | ----------  | -------------  | ------------- |  ------------- | 
@@ -456,7 +460,7 @@ true
 
 ### Remove By Id
 
-Remove a task by id.
+Remove a task by its id.
 
 | Parameter   | Type           | Description   | Default        |
 | ----------  | -------------  | ------------- |  ------------- | 
@@ -736,7 +740,7 @@ Hello World
 
 ### Clear
 
-Delete all tasks
+Delete all tasks.
 
 **Call**
 ``` php
@@ -750,7 +754,7 @@ true
 
 ### Reset
 
-Delete database. Use with caution.
+Delete database. **Use with caution.**
 
 **Call**
 ``` php

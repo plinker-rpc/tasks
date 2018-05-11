@@ -119,7 +119,7 @@ Create a new task, tasks with the same name will be overwritten.
 | ----------  | -------------  | ------------- |  -------------- | 
 | name        | string         | Name of task  |                 |
 | source      | string         | Task source code |              |
-| type        | string         | Type of task (php|bash) |       |
+| type        | string         | Type of task (php\|bash) |       |
 | description | string         | Description of task |           |
 | params      | array          | Default params passed to task | |
 
@@ -159,7 +159,7 @@ Update a task.
 | id          | int            | Id of task    |                 |
 | name        | string         | Name of task  |                 |
 | source      | string         | Task source code |              |
-| type        | string         | Type of task (php|bash) |       |
+| type        | string         | Type of task (php\|bash) |       |
 | description | string         | Description of task |           |
 | params      | array          | Default params passed to task | |
 
