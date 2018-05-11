@@ -17,48 +17,45 @@ namespace Plinker\Tasks {
         }
 
         /**
-         *
+         * Create a task
          */
-        public function create(array $params = array())
-        {
-            if (empty($params[0])) {
-                return 'Error: missing first argument.';
-            }
-
-            if (empty($params[1])) {
-                return 'Error: missing second argument.';
-            }
-
+        public function create(
+            $name = '',
+            $source = '',
+            $type = '',
+            $description = '',
+            $params = []
+        ) {
             try {
                 // find or create new task source
                 $tasksource = $this->model->findOrCreate([
                     'tasksource',
-                    'name' => $params[0]
+                    'name' => $name
                 ]);
             } catch (\Exception $e) {
                 return $e->getMessage();
             }
 
             // update - source
-            $tasksource->source = str_replace("\r", "", $params[1]);
-            $tasksource->checksum = md5($params[1]);
+            $tasksource->source = str_replace("\r", "", $source);
+            $tasksource->checksum = md5($source);
 
-            if (!empty($params[2])) {
-                $tasksource->type = strtolower($params[2]);
+            if (!empty($type)) {
+                $tasksource->type = strtolower($type);
             } else {
                 $tasksource->type = '';
             }
 
             // description
-            if (!empty($params[3])) {
-                $tasksource->description = $params[3];
+            if (!empty($description)) {
+                $tasksource->description = $description;
             } else {
                 $tasksource->description = '';
             }
 
-            // description
-            if (!empty($params[4])) {
-                $tasksource->params = $params[4];
+            // params
+            if (!empty($params)) {
+                $tasksource->params = $params;
             } else {
                 $tasksource->params = '';
             }
@@ -81,49 +78,39 @@ namespace Plinker\Tasks {
         /**
          *
          */
-        public function update(array $params = array())
-        {
-            if (empty($params[0])) {
-                return 'Error: missing first argument.';
-            }
-
-            if (!is_numeric($params[0])) {
-                return 'Error: first argument must be the task id.';
-            }
-
-            if (empty($params[1])) {
-                return 'Error: missing second argument.';
-            }
-
-            if (empty($params[2])) {
-                return 'Error: missing third argument.';
-            }
-
+        public function update(
+            $id = 0,
+            $name = '',
+            $source = '',
+            $type = '',
+            $description = '',
+            $params = []
+        ) {
             // find or create new task source
-            $tasksource = $this->model->load('tasksource', $params[0]);
+            $tasksource = $this->model->load('tasksource', $id);
 
             // update - source
-            $tasksource->name = $params[1];
-            $tasksource->source = str_replace("\r", "", $params[2]);
-            $tasksource->checksum = md5($params[2]);
+            $tasksource->name = $name;
+            $tasksource->source = str_replace("\r", "", $source);
+            $tasksource->checksum = md5($source);
 
             // type
-            if (!empty($params[3])) {
-                $tasksource->type = strtolower($params[3]);
+            if (!empty($type)) {
+                $tasksource->type = strtolower($type);
             } else {
                 $tasksource->type = '';
             }
 
             // description
-            if (!empty($params[4])) {
-                $tasksource->description = $params[4];
+            if (!empty($description)) {
+                $tasksource->description = $description;
             } else {
                 $tasksource->description = '';
             }
 
             // params
-            if (!empty($params[5])) {
-                $tasksource->params = $params[5];
+            if (!empty($params)) {
+                $tasksource->params = $params;
             } else {
                 $tasksource->params = '';
             }
@@ -146,20 +133,20 @@ namespace Plinker\Tasks {
         /**
          *
          */
-        public function get(array $params = array())
+        public function get($name = '')
         {
             // get task
-            return $this->model->findOne('tasksource', 'name = ?', [$params[0]]);
+            return $this->model->findOne('tasksource', 'name = ?', [$name]);
         }
 
         /**
          *
          */
-        public function status(array $params = array())
+        public function status($name = '')
         {
             // find or create new task source
             $task = $this->model->findOne('tasks', 'name = ?', [
-                $params[0]
+                $name
             ]);
 
             if (empty($task->id)) {
@@ -180,11 +167,11 @@ namespace Plinker\Tasks {
         /**
          *
          */
-        public function runCount(array $params = array())
+        public function runCount($name = '')
         {
             // find or create new task source
             $task = $this->model->findOne('tasks', 'name = ?', [
-                $params[0]
+                $name
             ]);
 
             if (empty($task->id)) {
@@ -201,18 +188,18 @@ namespace Plinker\Tasks {
         /**
          *
          */
-        public function getById(array $params = array())
+        public function getById($id = 0)
         {
-            return $this->model->load('tasksource', $params[0]);
+            return $this->model->load('tasksource', $id);
         }
         
         /**
          *
          */
-        public function remove(array $params = array())
+        public function remove($name = '')
         {
             // get task
-            $row = $this->model->findOne('tasksource', 'name = ?', [$params[0]]);
+            $row = $this->model->findOne('tasksource', 'name = ?', [$name]);
             
             if (empty($row->id)) {
                 return 'not found';
@@ -232,10 +219,10 @@ namespace Plinker\Tasks {
         /**
          *
          */
-        public function removeById(array $params = array())
+        public function removeById($id = 0)
         {
             // get task
-            $row = $this->model->load('tasksource', $params[0]);
+            $row = $this->model->load('tasksource', $id);
             
             if (empty($row->id)) {
                 return 'not found';
@@ -255,7 +242,7 @@ namespace Plinker\Tasks {
         /**
          *
          */
-        public function getTaskSources(array $params = array())
+        public function getTaskSources()
         {
             // tasks
             return $this->model->findAll('tasksource');
@@ -264,11 +251,11 @@ namespace Plinker\Tasks {
         /**
          *
          */
-        public function getTasksLog(array $params = array())
+        public function getTasksLog($tasksource_id = 0)
         {
             // get task
-            if (!empty($params[0])) {
-                return $this->model->findAll('tasks', 'tasksource_id = ? ORDER BY id DESC', [$params[0]]);
+            if (!empty($id)) {
+                return $this->model->findAll('tasks', 'tasksource_id = ? ORDER BY id DESC', [$tasksource_id]);
             } else {
                 return $this->model->findAll('tasks');
             }
@@ -277,11 +264,11 @@ namespace Plinker\Tasks {
         /**
          *
          */
-        public function getTasks(array $params = array())
+        public function getTasks($id = 0)
         {
             // get task
             if (!empty($params[0])) {
-                return $this->model->findOne('tasks', 'id = ?', [$params[0]]);
+                return $this->model->findOne('tasks', 'id = ?', [$id]);
             } else {
                 return $this->model->findAll('tasks');
             }
@@ -290,11 +277,11 @@ namespace Plinker\Tasks {
         /**
          *
          */
-        public function getTasksLogCount(array $params = array())
+        public function getTasksLogCount($tasksource_id = 0)
         {
             // get task
             if (!empty($params[0])) {
-                return $this->model->count('tasks', 'tasksource_id = ?', [$params[0]]);
+                return $this->model->count('tasks', 'tasksource_id = ?', [$tasksource_id]);
             } else {
                 return $this->model->count('tasks');
             }
@@ -303,10 +290,10 @@ namespace Plinker\Tasks {
         /**
          *
          */
-        public function removeTasksLog(array $params = array())
+        public function removeTasksLog($id = 0)
         {
             // get task
-            $row = $this->model->load('tasks', $params[0]);
+            $row = $this->model->load('tasks', $id);
             $this->model->trash($row);
 
             return true;
@@ -316,21 +303,21 @@ namespace Plinker\Tasks {
          * Run
          * Puts task in tasking table for deamon to run.
          */
-        public function run(array $params = array())
+        public function run($name = '', $params = [], $sleep = 0)
         {
             // find or create new task source
             $task = $this->model->findOrCreate([
                 'tasks',
-                'name'   => $params[0],
-                'params' => json_encode($params[1]),
-                'repeats' => !empty($params[2]),
+                'name'   => $name,
+                'params' => json_encode($params),
+                'repeats' => !empty($sleep),
                 'completed' => 0
             ]);
 
-            $task->sleep = round((empty($params[2]) ? 1: $params[2]));
+            $task->sleep = round((empty($sleep) ? 1: $sleep));
 
             // get task source id
-            $task->tasksource = $this->model->findOne('tasksource', 'name = ?', [$params[0]]);
+            $task->tasksource = $this->model->findOne('tasksource', 'name = ?', [$name]);
 
             if (empty($task->completed) && empty($task->result)) {
                 // store task
@@ -349,10 +336,10 @@ namespace Plinker\Tasks {
          * Does not put task in tasking table for deamon to run.
          * note: will be run as apache user
          */
-        public function runNow(array $params = array())
+        public function runNow($name = '')
         {
             // get task
-            $tasksource = $this->model->findOne('tasksource', 'name = ?', [$params[0]]);
+            $tasksource = $this->model->findOne('tasksource', 'name = ?', [$name]);
 
             if (empty($tasksource)) {
                 return ['error' => 'Task not found'];
@@ -382,7 +369,7 @@ namespace Plinker\Tasks {
         /**
          *
          */
-        public function clear(array $params = array())
+        public function clear()
         {
             $this->model->exec('DELETE FROM tasks');
 
@@ -392,7 +379,7 @@ namespace Plinker\Tasks {
         /**
          *
          */
-        public function reset(array $params = array())
+        public function reset()
         {
             $this->model->nuke();
 
