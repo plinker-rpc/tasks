@@ -1,4 +1,21 @@
 <?php
+/*
+ +------------------------------------------------------------------------+
+ | Plinker-RPC PHP                                                        |
+ +------------------------------------------------------------------------+
+ | Copyright (c)2017-2018 (https://github.com/plinker-rpc/core)           |
+ +------------------------------------------------------------------------+
+ | This source file is subject to MIT License                             |
+ | that is bundled with this package in the file LICENSE.                 |
+ |                                                                        |
+ | If you did not receive a copy of the license and are unable to         |
+ | obtain it through the world-wide-web, please send an email             |
+ | to license@cherone.co.uk so we can send you a copy immediately.        |
+ +------------------------------------------------------------------------+
+ | Authors: Lawrence Cherone <lawrence@cherone.co.uk>                     |
+ +------------------------------------------------------------------------+
+ */
+
 namespace Plinker\Tasks {
 
     use Plinker\Tasks\Lib;
@@ -6,9 +23,9 @@ namespace Plinker\Tasks {
 
     class Tasks
     {
-        public $config = array();
+        public $config = [];
 
-        public function __construct(array $config = array())
+        public function __construct(array $config = [])
         {
             $this->config = $config;
 
@@ -76,7 +93,7 @@ namespace Plinker\Tasks {
         }
 
         /**
-         *
+         * Update a task
          */
         public function update(
             $id = 0,
@@ -131,16 +148,33 @@ namespace Plinker\Tasks {
         }
 
         /**
-         *
+         * Get tasksource (by name)
          */
         public function get($name = '')
         {
             // get task
             return $this->model->findOne('tasksource', 'name = ?', [$name]);
         }
+        
+        /**
+         * Get tasksource (by id)
+         */
+        public function getById($id = 0)
+        {
+            return $this->model->load('tasksource', $id);
+        }
+        
+        /**
+         * Get all tasksources
+         */
+        public function getTaskSources()
+        {
+            // tasks
+            return $this->model->findAll('tasksource');
+        }
 
         /**
-         *
+         * Get status of a task
          */
         public function status($name = '')
         {
@@ -165,7 +199,7 @@ namespace Plinker\Tasks {
         }
 
         /**
-         *
+         * Get task run count
          */
         public function runCount($name = '')
         {
@@ -186,15 +220,7 @@ namespace Plinker\Tasks {
         }
 
         /**
-         *
-         */
-        public function getById($id = 0)
-        {
-            return $this->model->load('tasksource', $id);
-        }
-        
-        /**
-         *
+         * Remove a task (by name)
          */
         public function remove($name = '')
         {
@@ -217,7 +243,7 @@ namespace Plinker\Tasks {
         }
 
         /**
-         *
+         * Remove a task (by id)
          */
         public function removeById($id = 0)
         {
@@ -240,16 +266,7 @@ namespace Plinker\Tasks {
         }
 
         /**
-         *
-         */
-        public function getTaskSources()
-        {
-            // tasks
-            return $this->model->findAll('tasksource');
-        }
-
-        /**
-         *
+         * Get task logs (all or by id)
          */
         public function getTasksLog($tasksource_id = 0)
         {
@@ -260,9 +277,34 @@ namespace Plinker\Tasks {
                 return $this->model->findAll('tasks');
             }
         }
+        
+        /**
+         * Get tasks log count (all or by id)
+         */
+        public function getTasksLogCount($tasksource_id = 0)
+        {
+            // get task
+            if (!empty($params[0])) {
+                return $this->model->count('tasks', 'tasksource_id = ?', [$tasksource_id]);
+            } else {
+                return $this->model->count('tasks');
+            }
+        }
+        
+        /**
+         * Remove a task log
+         */
+        public function removeTasksLog($id = 0)
+        {
+            // get task
+            $row = $this->model->load('tasks', $id);
+            $this->model->trash($row);
+
+            return true;
+        }
 
         /**
-         *
+         * Get tasks (all or by id)
          */
         public function getTasks($id = 0)
         {
@@ -275,33 +317,7 @@ namespace Plinker\Tasks {
         }
 
         /**
-         *
-         */
-        public function getTasksLogCount($tasksource_id = 0)
-        {
-            // get task
-            if (!empty($params[0])) {
-                return $this->model->count('tasks', 'tasksource_id = ?', [$tasksource_id]);
-            } else {
-                return $this->model->count('tasks');
-            }
-        }
-
-        /**
-         *
-         */
-        public function removeTasksLog($id = 0)
-        {
-            // get task
-            $row = $this->model->load('tasks', $id);
-            $this->model->trash($row);
-
-            return true;
-        }
-
-        /**
-         * Run
-         * Puts task in tasking table for deamon to run.
+         * Run a task (puts task in tasking table for deamon to run)
          */
         public function run($name = '', $params = [], $sleep = 0)
         {
@@ -332,9 +348,8 @@ namespace Plinker\Tasks {
         }
 
         /**
-         * Run Now
-         * Does not put task in tasking table for deamon to run.
-         * note: will be run as apache user
+         * Run a task now (task is not placed in tasking table for deamon to run)
+         * note: will be run as webserver user
          */
         public function runNow($name = '')
         {
@@ -367,7 +382,7 @@ namespace Plinker\Tasks {
         }
 
         /**
-         *
+         * Delete all tasks
          */
         public function clear()
         {
@@ -377,7 +392,8 @@ namespace Plinker\Tasks {
         }
 
         /**
-         *
+         * Reset the tasks table (deletes everything)
+         *  - Use with caution
          */
         public function reset()
         {
