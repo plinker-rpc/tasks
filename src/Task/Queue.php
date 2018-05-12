@@ -50,7 +50,7 @@ namespace Plinker\Tasks\Task {
                 if ($this->count('tasks', 'name = "tasks.auto_update"') == 0) {
                     $this->tasks = new \Plinker\Tasks\Tasks($this->task->config);
                     // add
-                    $task['tasks.auto_update'] = $this->tasks->create([
+                    $task['tasks.auto_update'] = $this->tasks->create(
                         // name
                         'tasks.auto_update',
                         // source
@@ -61,9 +61,9 @@ namespace Plinker\Tasks\Task {
                         'Plinker auto update',
                         // default params
                         []
-                    ]);
+                    );
                     // run task
-                    $this->tasks->run(['tasks.auto_update', [], $this->task->config['auto_update']]);
+                    $this->tasks->run('tasks.auto_update', [], $this->task->config['auto_update']);
                 }
             }
 
