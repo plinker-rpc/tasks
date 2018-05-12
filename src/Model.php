@@ -78,9 +78,6 @@ class Model
 
         $table = $data[0];
         unset($data[0]);
-        
-        print_r($table);
-        print_r($data);
 
         return R::findOrCreate($table, $data);
     }
