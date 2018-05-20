@@ -271,7 +271,7 @@ namespace Plinker\Tasks {
         public function getTasksLog($tasksource_id = 0)
         {
             // get task
-            if (!empty($id)) {
+            if (!empty($tasksource_id)) {
                 return $this->model->findAll('tasks', 'tasksource_id = ? ORDER BY id DESC', [$tasksource_id]);
             } else {
                 return $this->model->findAll('tasks');
@@ -284,7 +284,7 @@ namespace Plinker\Tasks {
         public function getTasksLogCount($tasksource_id = 0)
         {
             // get task
-            if (!empty($params[0])) {
+            if (!empty($tasksource_id)) {
                 return $this->model->count('tasks', 'tasksource_id = ?', [$tasksource_id]);
             } else {
                 return $this->model->count('tasks');
