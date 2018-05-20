@@ -58,7 +58,7 @@ namespace Plinker\Tasks\Task {
                         // type
                         'bash',
                         // description
-                        'Plinker tasks auto update',
+                        'Tasks module auto update',
                         // default params
                         []
                     );
