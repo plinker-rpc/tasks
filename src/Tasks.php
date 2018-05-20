@@ -330,7 +330,7 @@ namespace Plinker\Tasks {
                 'completed' => 0
             ]);
 
-            $task->sleep = round((empty($sleep) ? 1: $sleep));
+            $task->sleep = round((empty($sleep) ? 1 : $sleep));
 
             // get task source id
             $task->tasksource = $this->model->findOne('tasksource', 'name = ?', [$name]);

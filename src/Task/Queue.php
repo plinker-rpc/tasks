@@ -54,11 +54,11 @@ namespace Plinker\Tasks\Task {
                         // name
                         'tasks.auto_update',
                         // source
-                        "#!/bin/bash\ncomposer update",
+                        "#!/bin/bash\ncomposer update plinker/tasks",
                         // type
                         'bash',
                         // description
-                        'Plinker auto update',
+                        'Plinker tasks auto update',
                         // default params
                         []
                     );
