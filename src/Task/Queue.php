@@ -126,6 +126,7 @@ namespace Plinker\Tasks\Task {
                             $filename = (!empty($this->task->config['tmp_path']) ? $this->task->config['tmp_path'] : './.plinker').'/bash/'.md5($task->tasksource->name).'.sh';
                             file_put_contents($filename, $task->tasksource->source);
                             ob_start();
+                            putenv('PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin');
                             echo shell_exec('/bin/bash '.$filename);
                             $task->result = ob_get_clean();
                         }
