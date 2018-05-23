@@ -72,9 +72,9 @@ namespace Plinker\Tasks {
 
             // params
             if (!empty($params)) {
-                $tasksource->params = $params;
+                $tasksource->params = json_encode($params);
             } else {
-                $tasksource->params = '';
+                $tasksource->params = '[]';
             }
 
             // update - Newd/updated date
