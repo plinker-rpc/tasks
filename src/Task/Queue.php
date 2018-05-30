@@ -94,7 +94,7 @@ namespace Plinker\Tasks\Task {
                     //
                     if (!empty($this->task->config['debug'])) {
                         $this->task->console->out(
-                            '<light_green><bold>Running    : '.$task->name/*.' - '.$task->params*/.'</bold></light_green>'
+                            '<light_green><bold>Running    : '.$task->name.'</bold></light_green>'
                         );
                     }
 
@@ -102,42 +102,57 @@ namespace Plinker\Tasks\Task {
                     if (!empty($task->tasksource_id)) {
 
                         //
-                        if (empty($task->repeats)) {
-                            $task->completed = date_create()->format('Y-m-d H:i:s');
-                            $task->run_last = date_create()->format('Y-m-d H:i:s');
-                        } else {
-                            $task->run_last = date_create()->format('Y-m-d H:i:s');
-                            $task->run_next = date_create()->modify("+".$task->sleep." seconds")->format('Y-m-d H:i:s');
-                        }
-                        
-                        $task->run_count = (empty($task->run_count) ? 1 : (int) $task->run_count + 1);
-
-                        //
                         $params = json_decode($task->params, true);
 
-                        //
-                        $return = null;
-                        if ($task->tasksource->type == 'php') {
-                            ob_start();
-                            $source = $task->tasksource->source;
-                            eval('?>'.$source);
-                            $task->result = ob_get_clean();
-                        } elseif ($task->tasksource->type == 'bash') {
-                            $filename = (!empty($this->task->config['tmp_path']) ? $this->task->config['tmp_path'] : './.plinker').'/bash/'.md5($task->tasksource->name).'.sh';
-                            file_put_contents($filename, $task->tasksource->source);
-                            ob_start();
-                            putenv('PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin');
-                            echo shell_exec('/bin/bash '.$filename);
-                            $task->result = ob_get_clean();
-                        }
+                        // set $PATH
+                        putenv('PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin');
                         
-                        /*
-                        if (!empty($this->task->config['debug'])) {
-                            print_r($task->result);
-                        }
-                        */
+                        try {
+                            // run task
+                            if ($task->tasksource->type == 'php') {
+                                ob_start();
+                                $source = $task->tasksource->source;
+                                eval('?>'.$source);
+                                $task->result = ob_get_clean();
+                            } elseif ($task->tasksource->type == 'bash') {
+                                $filename = (!empty($this->task->config['tmp_path']) ? $this->task->config['tmp_path'] : './.plinker').'/bash/'.md5($task->tasksource->name).'.sh';
+                                file_put_contents($filename, $task->tasksource->source);
+                                ob_start();
+                                echo shell_exec('/bin/bash '.$filename);
+                                $task->result = ob_get_clean();
+                            }
+                            
+                            // set status
+                            if (empty($task->repeats)) {
+                                $task->completed = date_create()->format('Y-m-d H:i:s');
+                                $task->run_last = date_create()->format('Y-m-d H:i:s');
+                            } else {
+                                $task->run_last = date_create()->format('Y-m-d H:i:s');
+                                $task->run_next = date_create()->modify("+".$task->sleep." seconds")->format('Y-m-d H:i:s');
+                            }
+                            
+                            $task->run_count = (empty($task->run_count) ? 1 : (int) $task->run_count + 1);
+                            
+                            $task->status = 'success';
 
-                        $this->store($task);
+                            $this->store($task);
+                        } catch (\ParseError $e) {
+                            // set status
+                            if (empty($task->repeats)) {
+                                $task->completed = date_create()->format('Y-m-d H:i:s');
+                                $task->run_last = date_create()->format('Y-m-d H:i:s');
+                            } else {
+                                $task->run_last = date_create()->format('Y-m-d H:i:s');
+                                $task->run_next = date_create()->modify("+".$task->sleep." seconds")->format('Y-m-d H:i:s');
+                            }
+                            
+                            $task->status = 'error';
+                            
+                            $task->run_count = (empty($task->run_count) ? 1 : (int) $task->run_count + 1);
+                            
+                            $task->result = "Code Error:\n-----------\n".$e."\n";
+                            $this->store($task);
+                        }
                     } else {
                         $this->trash($task);
                         if (!empty($this->task->config['debug'])) {
